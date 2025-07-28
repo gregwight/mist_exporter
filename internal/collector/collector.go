@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/gregwight/mistclient"
 	"github.com/gregwight/mistexporter/internal/config"
@@ -150,7 +151,7 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 	for _, deviceStat := range deviceStats {
 		deviceLabels := metrics.DeviceStatLabels(deviceStat)
 		c.sendMetric(ch, c.deviceMetrics.LastSeen, prometheus.GaugeValue, float64(deviceStat.LastSeen.Unix()), deviceLabels...)
-		c.sendMetric(ch, c.deviceMetrics.Uptime, prometheus.GaugeValue, float64(deviceStat.Uptime), deviceLabels...)
+		c.sendMetric(ch, c.deviceMetrics.Uptime, prometheus.GaugeValue, (time.Duration)(deviceStat.Uptime).Seconds(), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.WLANs, prometheus.GaugeValue, float64(deviceStat.NumWLANs), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.TxBps, prometheus.GaugeValue, float64(deviceStat.TxBps), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.RxBps, prometheus.GaugeValue, float64(deviceStat.RxBps), deviceLabels...)
@@ -187,8 +188,8 @@ func (c *MistCollector) collectClientMetrics(ctx context.Context, ch chan<- prom
 	for _, client := range clients {
 		clientLabels := metrics.ClientLabels(client)
 		c.sendMetric(ch, c.clientMetrics.LastSeen, prometheus.GaugeValue, float64(client.LastSeen.Unix()), clientLabels...)
-		c.sendMetric(ch, c.clientMetrics.Uptime, prometheus.GaugeValue, float64(client.Uptime), clientLabels...)
-		c.sendMetric(ch, c.clientMetrics.Idletime, prometheus.GaugeValue, float64(client.Idletime), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.Uptime, prometheus.GaugeValue, (time.Duration)(client.Uptime).Seconds(), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.Idletime, prometheus.GaugeValue, (time.Duration)(client.Idletime).Seconds(), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.PowerSaving, prometheus.GaugeValue, boolToFloat64(client.PowerSaving), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.DualBand, prometheus.GaugeValue, boolToFloat64(client.DualBand), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.Channel, prometheus.GaugeValue, float64(client.Channel), clientLabels...)
