@@ -14,6 +14,7 @@ import (
 	"github.com/gregwight/mistclient"
 	"github.com/gregwight/mistexporter/internal/collector"
 	"github.com/gregwight/mistexporter/internal/config"
+	"github.com/gregwight/mistexporter/internal/version"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -24,6 +25,7 @@ import (
 func main() {
 	configFile := flag.String("config", "config.yaml", "Path to the configuration file")
 	debug := flag.Bool("debug", false, "Enable debug mode")
+	version.AddVersionFlag()
 	flag.Parse()
 
 	// Initialize logger
