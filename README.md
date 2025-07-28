@@ -1,6 +1,6 @@
 # Mist Prometheus Exporter
 
-[![Build Status](https://github.com/gregwight/mistexporter/actions/workflows/ci.yml/badge.svg)](https://github.com/gregwight/mistexporter/actions/workflows/ci.yml)
+[![Build Status](https://github.com/gregwight/mist_exporter/actions/workflows/release.yml/badge.svg)](https://github.com/gregwight/mist_exporter/actions/workflows/release.yml)
 
 A Prometheus exporter for Juniper Mist API metrics.
 
@@ -69,7 +69,7 @@ A Docker image can be used to run the exporter.
 
 ```sh
 docker run -d \
-  --name mist-exporter \
+  --name mist_exporter \
   -p 9200:9200 \
   -v $(pwd)/config.yaml:/app/config.yaml \
   <your-docker-image-name>:latest
@@ -79,8 +79,8 @@ docker run -d \
 
 1.  Clone the repository:
     ```sh
-    git clone https://github.com/gregwight/mistexporter.git
-    cd mistexporter
+    git clone https://github.com/gregwight/mist_exporter.git
+    cd mist_exporter
     ```
 2.  Build the binary:
     ```sh
@@ -105,7 +105,7 @@ VERSION="<latest_version>"
 ARCH="amd64" # or arm64
 
 # Download and extract the release archive
-curl -sSL https://github.com/gregwight/mistexporter/releases/download/${VERSION}/mist_exporter-${VERSION}-linux-${ARCH}.tar.gz | tar -xz
+curl -sSL https://github.com/gregwight/mist_exporter/releases/download/${VERSION}/mist_exporter-${VERSION}-linux-${ARCH}.tar.gz | tar -xz
 
 # Copy the example config and edit it with your API key and org ID
 cp config.yaml.dist config.yaml
@@ -124,8 +124,8 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
 
     ```sh
     sudo mv mist_exporter /usr/local/bin/
-    sudo mkdir -p /etc/mist-exporter
-    sudo mv config.yaml /etc/mist-exporter/
+    sudo mkdir -p /etc/mist_exporter
+    sudo mv config.yaml /etc/mist_exporter/
     sudo chmod +x /usr/local/bin/mist_exporter
     ```
 
@@ -133,11 +133,11 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
     It is a security best practice to run services as a non-root user.
     ```sh
     sudo useradd --no-create-home --shell /bin/false prometheus
-    sudo chown -R prometheus:prometheus /etc/mist-exporter
+    sudo chown -R prometheus:prometheus /etc/mist_exporter
     ```
 
 3.  **Create the systemd unit file:**
-    Create a file at `/etc/systemd/system/mist-exporter.service` with the following content:
+    Create a file at `/etc/systemd/system/mist_exporter.service` with the following content:
 
     ```ini
     [Unit]
@@ -149,7 +149,7 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
     User=prometheus
     Group=prometheus
     Type=simple
-    ExecStart=/usr/local/bin/mist_exporter --config /etc/mist-exporter/config.yaml
+    ExecStart=/usr/local/bin/mist_exporter --config /etc/mist_exporter/config.yaml
     Restart=on-failure
 
     [Install]
@@ -162,13 +162,13 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
     sudo systemctl daemon-reload
 
     # Enable the service to start on boot
-    sudo systemctl enable mist-exporter.service
+    sudo systemctl enable mist_exporter.service
 
     # Start the service now
-    sudo systemctl start mist-exporter.service
+    sudo systemctl start mist_exporter.service
 
     # Check the status
-    sudo systemctl status mist-exporter.service
+    sudo systemctl status mist_exporter.service
     ```
 
 ## Exposed Metrics
@@ -180,7 +180,7 @@ The exporter exposes the following metrics at the `/metrics` endpoint.
 |---|---|---|
 | `mist_org_alarms` | Number of alarms in the organization. | `alarm_type` |
 | `mist_org_tickets` | Number of tickets in the organization. | `ticket_status` |
-| `mist_org_sites` | A gauge of 1 for each site in the organization. | `site_id`, `site_name`, `country_code` |
+| `mist_org_sites` | Number of sites in the organization. | `site_id`, `site_name`, `country_code` |
 
 ### Device (AP) Metrics (`mist_device_*`)
 | Metric | Description | Labels |
@@ -195,7 +195,7 @@ The exporter exposes the following metrics at the `/metrics` endpoint.
 | `mist_device_rx_bytes` | Received bytes on the radio. | (as above), `radio` |
 | `mist_device_power` | Transmit power (in dBm) of the radio. | (as above), `radio` |
 | `mist_device_channel` | Current channel of the radio. | (as above), `radio` |
-| ...and many more radio and utilization metrics. |
+| ...more radio and utilization metrics. |
 
 ### Client Metrics (`mist_client_*`)
 | Metric | Description | Labels |
@@ -206,7 +206,7 @@ The exporter exposes the following metrics at the `/metrics` endpoint.
 | `mist_client_snr` | Client's Signal-to-Noise Ratio. | (as above) |
 | `mist_client_tx_bytes` | Transmitted bytes from the client. | (as above) |
 | `mist_client_rx_bytes` | Received bytes by the client. | (as above) |
-| ...and many more client statistics. |
+| ...more client statistics. |
 
 ## Contributing
 
