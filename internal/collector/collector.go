@@ -148,128 +148,30 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 	}
 
 	for _, deviceStat := range deviceStats {
-		ch <- prometheus.MustNewConstMetric(
-			c.deviceMetrics.LastSeen,
-			prometheus.GaugeValue,
-			float64(deviceStat.LastSeen.Unix()),
-			metrics.DeviceStatLabels(deviceStat)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.deviceMetrics.Uptime,
-			prometheus.GaugeValue,
-			float64(deviceStat.Uptime),
-			metrics.DeviceStatLabels(deviceStat)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.deviceMetrics.WLANs,
-			prometheus.GaugeValue,
-			float64(deviceStat.NumWLANs),
-			metrics.DeviceStatLabels(deviceStat)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.deviceMetrics.TxBps,
-			prometheus.GaugeValue,
-			float64(deviceStat.TxBps),
-			metrics.DeviceStatLabels(deviceStat)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.deviceMetrics.RxBps,
-			prometheus.GaugeValue,
-			float64(deviceStat.RxBps),
-			metrics.DeviceStatLabels(deviceStat)...,
-		)
+		deviceLabels := metrics.DeviceStatLabels(deviceStat)
+		c.sendMetric(ch, c.deviceMetrics.LastSeen, prometheus.GaugeValue, float64(deviceStat.LastSeen.Unix()), deviceLabels...)
+		c.sendMetric(ch, c.deviceMetrics.Uptime, prometheus.GaugeValue, float64(deviceStat.Uptime), deviceLabels...)
+		c.sendMetric(ch, c.deviceMetrics.WLANs, prometheus.GaugeValue, float64(deviceStat.NumWLANs), deviceLabels...)
+		c.sendMetric(ch, c.deviceMetrics.TxBps, prometheus.GaugeValue, float64(deviceStat.TxBps), deviceLabels...)
+		c.sendMetric(ch, c.deviceMetrics.RxBps, prometheus.GaugeValue, float64(deviceStat.RxBps), deviceLabels...)
 
 		for radioConfig, radioStat := range deviceStat.RadioStats {
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.Clients,
-				prometheus.GaugeValue,
-				float64(radioStat.NumClients),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.TxBytes,
-				prometheus.GaugeValue,
-				float64(radioStat.TxBytes),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.RxBytes,
-				prometheus.GaugeValue,
-				float64(radioStat.RxBytes),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.TxPackets,
-				prometheus.GaugeValue,
-				float64(radioStat.TxPkts),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.RxPackets,
-				prometheus.GaugeValue,
-				float64(radioStat.RxPkts),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.Power,
-				prometheus.GaugeValue,
-				float64(radioStat.Power),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.Channel,
-				prometheus.GaugeValue,
-				float64(radioStat.Channel),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.Bandwidth,
-				prometheus.GaugeValue,
-				float64(radioStat.Bandwidth),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilAll,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilAll),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilTx,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilTx),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilRxInBSS,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilRxInBSS),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilRxOtherBSS,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilRxOtherBSS),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilUnknownWiFi,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilUnknownWiFi),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilNonWiFi,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilNonWiFi),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.deviceMetrics.UtilUndecodableWiFi,
-				prometheus.GaugeValue,
-				float64(radioStat.UtilUndecodableWiFi),
-				metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())...,
-			)
+			radioLabels := metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())
+			c.sendMetric(ch, c.deviceMetrics.Clients, prometheus.GaugeValue, float64(radioStat.NumClients), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.TxBytes, prometheus.GaugeValue, float64(radioStat.TxBytes), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.RxBytes, prometheus.GaugeValue, float64(radioStat.RxBytes), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.TxPackets, prometheus.GaugeValue, float64(radioStat.TxPkts), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.RxPackets, prometheus.GaugeValue, float64(radioStat.RxPkts), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.Power, prometheus.GaugeValue, float64(radioStat.Power), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.Channel, prometheus.GaugeValue, float64(radioStat.Channel), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.Bandwidth, prometheus.GaugeValue, float64(radioStat.Bandwidth), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilAll, prometheus.GaugeValue, float64(radioStat.UtilAll), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilTx, prometheus.GaugeValue, float64(radioStat.UtilTx), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilRxInBSS, prometheus.GaugeValue, float64(radioStat.UtilRxInBSS), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilRxOtherBSS, prometheus.GaugeValue, float64(radioStat.UtilRxOtherBSS), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilUnknownWiFi, prometheus.GaugeValue, float64(radioStat.UtilUnknownWiFi), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilNonWiFi, prometheus.GaugeValue, float64(radioStat.UtilNonWiFi), radioLabels...)
+			c.sendMetric(ch, c.deviceMetrics.UtilUndecodableWiFi, prometheus.GaugeValue, float64(radioStat.UtilUndecodableWiFi), radioLabels...)
 		}
 	}
 
@@ -283,117 +185,32 @@ func (c *MistCollector) collectClientMetrics(ctx context.Context, ch chan<- prom
 	}
 
 	for _, client := range clients {
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.LastSeen,
-			prometheus.GaugeValue,
-			float64(client.LastSeen.Unix()),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.Uptime,
-			prometheus.GaugeValue,
-			float64(client.Uptime),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.Idletime,
-			prometheus.GaugeValue,
-			float64(client.Idletime),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.PowerSaving,
-			prometheus.GaugeValue,
-			boolToFloat64(client.PowerSaving),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.DualBand,
-			prometheus.GaugeValue,
-			boolToFloat64(client.DualBand),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.Channel,
-			prometheus.GaugeValue,
-			float64(client.Channel),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.RSSI,
-			prometheus.GaugeValue,
-			float64(client.RSSI),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.SNR,
-			prometheus.GaugeValue,
-			float64(client.SNR),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.TxRate,
-			prometheus.GaugeValue,
-			client.TxRate,
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.RxRate,
-			prometheus.GaugeValue,
-			client.RxRate,
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.TxBytes,
-			prometheus.GaugeValue,
-			float64(client.TxBytes),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.RxBytes,
-			prometheus.GaugeValue,
-			float64(client.RxBytes),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.TxBps,
-			prometheus.GaugeValue,
-			float64(client.TxBps),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.RxBps,
-			prometheus.GaugeValue,
-			float64(client.RxBps),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.TxPackets,
-			prometheus.GaugeValue,
-			float64(client.TxPackets),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.RxPackets,
-			prometheus.GaugeValue,
-			float64(client.RxPackets),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.TxRetries,
-			prometheus.GaugeValue,
-			float64(client.TxRetries),
-			metrics.ClientLabels(client)...,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.clientMetrics.RxRetries,
-			prometheus.GaugeValue,
-			float64(client.RxRetries),
-			metrics.ClientLabels(client)...,
-		)
+		clientLabels := metrics.ClientLabels(client)
+		c.sendMetric(ch, c.clientMetrics.LastSeen, prometheus.GaugeValue, float64(client.LastSeen.Unix()), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.Uptime, prometheus.GaugeValue, float64(client.Uptime), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.Idletime, prometheus.GaugeValue, float64(client.Idletime), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.PowerSaving, prometheus.GaugeValue, boolToFloat64(client.PowerSaving), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.DualBand, prometheus.GaugeValue, boolToFloat64(client.DualBand), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.Channel, prometheus.GaugeValue, float64(client.Channel), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.RSSI, prometheus.GaugeValue, float64(client.RSSI), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.SNR, prometheus.GaugeValue, float64(client.SNR), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.TxRate, prometheus.GaugeValue, client.TxRate, clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.RxRate, prometheus.GaugeValue, client.RxRate, clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.TxBytes, prometheus.GaugeValue, float64(client.TxBytes), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.RxBytes, prometheus.GaugeValue, float64(client.RxBytes), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.TxBps, prometheus.GaugeValue, float64(client.TxBps), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.RxBps, prometheus.GaugeValue, float64(client.RxBps), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.TxPackets, prometheus.GaugeValue, float64(client.TxPackets), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.RxPackets, prometheus.GaugeValue, float64(client.RxPackets), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.TxRetries, prometheus.GaugeValue, float64(client.TxRetries), clientLabels...)
+		c.sendMetric(ch, c.clientMetrics.RxRetries, prometheus.GaugeValue, float64(client.RxRetries), clientLabels...)
 	}
 
 	return nil
+}
+
+func (c *MistCollector) sendMetric(ch chan<- prometheus.Metric, desc *prometheus.Desc, valueType prometheus.ValueType, value float64, labels ...string) {
+	ch <- prometheus.MustNewConstMetric(desc, valueType, value, labels...)
 }
 
 func boolToFloat64(b bool) float64 {
