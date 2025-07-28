@@ -1,0 +1,26 @@
+---
+# Mist Prometheus Exporter Configuration
+# Environment variables can be used with ${VAR_NAME} syntax
+
+org_id: 
+
+mist_api:
+  # Mist API base URL
+  base_url: "https://api.mist.com"
+
+  # Mist API token for authentication - must have "org" level read permissions
+  api_key: 
+  
+  # Mist API client request timeout
+  timeout: 30s
+
+exporter:
+  # Exporter bind address
+  address: 0.0.0.0
+  
+  # Exporter port
+  port: 9200
+
+collector:
+  # Collector timeout
+  timeout: 30s
