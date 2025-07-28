@@ -6,10 +6,6 @@ BINDIR=${PWD}/bin
 CMDDIR=${PWD}/cmd
 
 
-.PHONY: all
-all: dist
-
-
 .PHONY: clean
 clean:
 	go clean
@@ -21,19 +17,15 @@ dep:
 	go get -u ./... && go mod tidy
 
 
-.PHONY: dep
-build: dep vet test
+.PHONY: build
+build: dep vet test lint
 	go build  -C ${CMDDIR}/ -o ${BINDIR}/${NAME}-${VERSION}
 
 
 .PHONY: run
 run: build
-	${BINDIR}/${NAME}
+	${BINDIR}/${NAME}-${VERSION}
 
-
-.PHONY: run-dev
-run-dev:
-	go run . -d
 
 .PHONY: test
 test:
