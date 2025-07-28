@@ -37,7 +37,7 @@ var deviceLabels = []string{
 	"site_id",
 }
 
-var deviceLablesWithRadio = append(deviceLabels, "radio")
+var deviceLabelsWithRadio = append(deviceLabels, "radio")
 
 func DeviceStatLabels(ds mistclient.DeviceStat) []string {
 	return []string{
@@ -89,91 +89,91 @@ func NewDeviceMetrics() *DeviceMetrics {
 		Clients: prometheus.NewDesc(
 			"mist_device_clients",
 			"Number of clients connected to the device",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		TxBytes: prometheus.NewDesc(
 			"mist_device_tx_bytes",
 			"Transmitted bytes",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		RxBytes: prometheus.NewDesc(
 			"mist_device_rx_bytes",
 			"Received bytes",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		TxPackets: prometheus.NewDesc(
 			"mist_device_tx_packets",
 			"Transmitted packets",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		RxPackets: prometheus.NewDesc(
 			"mist_device_rx_packets",
 			"Received packets",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		Power: prometheus.NewDesc(
 			"mist_device_power",
 			"Transmit power (in dBm)",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		Channel: prometheus.NewDesc(
 			"mist_device_channel",
 			"Current channel",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		Bandwidth: prometheus.NewDesc(
 			"mist_device_bandwidth",
 			"Current channel bandwidth, 20/40/80/160 MHz",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilAll: prometheus.NewDesc(
 			"mist_device_util_all",
 			"All utilization percent",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilTx: prometheus.NewDesc(
 			"mist_device_util_tx",
 			"Transmit utilization percent",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilRxInBSS: prometheus.NewDesc(
 			"mist_device_util_rx_in_bss",
 			"Reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilRxOtherBSS: prometheus.NewDesc(
 			"mist_device_util_rx_other_bss",
 			"Eeception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilUnknownWiFi: prometheus.NewDesc(
 			"mist_device_util_unknown_wifi",
 			"Reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilNonWiFi: prometheus.NewDesc(
 			"mist_device_util_non_wifi",
 			"Reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRC glitches as noise",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 		UtilUndecodableWiFi: prometheus.NewDesc(
 			"mist_device_util_undecodable_wifi",
 			"Reception of “UnDecodable Wifi” utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
-			deviceLablesWithRadio,
+			deviceLabelsWithRadio,
 			nil,
 		),
 	}
