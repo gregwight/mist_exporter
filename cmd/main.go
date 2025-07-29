@@ -99,7 +99,7 @@ func main() {
 		configBytes, err := yaml.Marshal(config)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Error marshaling config: %v", err)))
+			fmt.Fprintf(w, "Error marshaling config: %v", err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/yaml")

@@ -22,3 +22,9 @@ jobs:
 
     - name: Run make target
       run: make ci
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v8
+      with:
+        version: v2.3.0
+        args: --disable errcheck
