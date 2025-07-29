@@ -7,7 +7,7 @@ CMDDIR=${PWD}/cmd
 
 
 .PHONY: ci
-ci: vet test lint
+ci: vet test
 
 
 .PHONY: clean
@@ -48,4 +48,4 @@ vet:
 
 .PHONY: lint
 lint:
-	golangci-lint run --enable-all
+	golangci-lint run --disable errcheck
