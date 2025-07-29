@@ -6,6 +6,10 @@ BINDIR=${PWD}/bin
 CMDDIR=${PWD}/cmd
 
 
+.PHONY: ci
+ci: vet test lint
+
+
 .PHONY: clean
 clean:
 	go clean
