@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	defaultAPIURL          string        = "https://api.mist.com"
 	defaultExporterAddress string        = "0.0.0.0"
 	defaultExporterPort    int           = 9200
 	defaultCollectTimeout  time.Duration = 30 * time.Second
@@ -54,6 +55,9 @@ func LoadConfig(configPath string) (*Config, error) {
 
 func newDefaultConfig() *Config {
 	return &Config{
+		MistClient: &mistclient.Config{
+			BaseURL: defaultAPIURL,
+		},
 		Exporter: &Exporter{
 			Address: defaultExporterAddress,
 			Port:    defaultExporterPort,
