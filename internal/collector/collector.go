@@ -100,7 +100,9 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 	g, gCtx := errgroup.WithContext(ctx)
 
 	// Limit concurrency to avoid overwhelming the API
-	semaphore := make(chan struct{}, 10)
+	// Default API request limit is 5,000/hour
+	semaphore := make(chan struct{}, c.config.Workers)
+	defer close(semaphore)
 
 	for _, site := range sites {
 		ch <- prometheus.MustNewConstMetric(

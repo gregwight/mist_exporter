@@ -13,6 +13,7 @@ const (
 	defaultExporterAddress string        = "0.0.0.0"
 	defaultExporterPort    int           = 9200
 	defaultCollectTimeout  time.Duration = 30 * time.Second
+	defaultCollectWorkers  int           = 10
 )
 
 type Config struct {
@@ -29,6 +30,7 @@ type Exporter struct {
 
 type Collector struct {
 	Timeout time.Duration `yaml:"timeout"`
+	Workers int           `yaml:"workers"`
 }
 
 // loadConfig loads and processes the YAML configuration with environment variable substitution
@@ -58,6 +60,7 @@ func newDefaultConfig() *Config {
 		},
 		Collector: &Collector{
 			Timeout: defaultCollectTimeout,
+			Workers: defaultCollectWorkers,
 		},
 	}
 }
