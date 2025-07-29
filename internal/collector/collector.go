@@ -97,12 +97,15 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	// Use errgroup for concurrent collection
-	g, gCtx := errgroup.WithContext(ctx)
+	g, _ := errgroup.WithContext(ctx)
 
 	// Limit concurrency to avoid overwhelming the API
 	// Default API request limit is 5,000/hour
-	semaphore := make(chan struct{}, c.config.Workers)
-	defer close(semaphore)
+	workers := 1
+	if c.config.Workers > 1 {
+		workers = c.config.Workers
+	}
+	g.SetLimit(workers)
 
 	for _, site := range sites {
 		ch <- prometheus.MustNewConstMetric(
@@ -112,13 +115,7 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 			site.ID, site.Name, site.CountryCode,
 		)
 		g.Go(func() error {
-			select {
-			case semaphore <- struct{}{}:
-				defer func() { <-semaphore }()
-				return c.collectSiteMetrics(gCtx, ch, site)
-			case <-gCtx.Done():
-				return gCtx.Err()
-			}
+			return c.collectSiteMetrics(ch, site)
 		})
 	}
 
@@ -127,24 +124,16 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (c *MistCollector) collectSiteMetrics(ctx context.Context, ch chan<- prometheus.Metric, site mistclient.Site) error {
-	// Collect devices and clients concurrently
-	g, gCtx := errgroup.WithContext(ctx)
-
+func (c *MistCollector) collectSiteMetrics(ch chan<- prometheus.Metric, site mistclient.Site) error {
 	// Collect devices
-	g.Go(func() error {
-		return c.collectDeviceMetrics(gCtx, ch, site)
-	})
-
+	if err := c.collectDeviceMetrics(ch, site); err != nil {
+		return err
+	}
 	// Collect clients
-	g.Go(func() error {
-		return c.collectClientMetrics(gCtx, ch, site)
-	})
-
-	return g.Wait()
+	return c.collectClientMetrics(ch, site)
 }
 
-func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prometheus.Metric, site mistclient.Site) error {
+func (c *MistCollector) collectDeviceMetrics(ch chan<- prometheus.Metric, site mistclient.Site) error {
 	deviceStats, err := c.client.GetSiteDeviceStats(site.ID)
 	if err != nil {
 		return fmt.Errorf("unable to fetch device stats for site %s: %w", site.Name, err)
@@ -181,7 +170,7 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 	return nil
 }
 
-func (c *MistCollector) collectClientMetrics(ctx context.Context, ch chan<- prometheus.Metric, site mistclient.Site) error {
+func (c *MistCollector) collectClientMetrics(ch chan<- prometheus.Metric, site mistclient.Site) error {
 	clients, err := c.client.GetSiteClients(site.ID)
 	if err != nil {
 		return fmt.Errorf("unable to fetch client stats for site %s: %w", site.Name, err)
