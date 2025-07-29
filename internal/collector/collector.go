@@ -104,7 +104,7 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, site := range sites {
 		ch <- prometheus.MustNewConstMetric(
-			c.orgMetrics.Sites,
+			c.orgMetrics.Site,
 			prometheus.GaugeValue,
 			1,
 			site.ID, site.Name, site.CountryCode,
@@ -149,7 +149,7 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 	}
 
 	for _, deviceStat := range deviceStats {
-		deviceLabels := metrics.DeviceStatLabels(deviceStat)
+		deviceLabels := metrics.DeviceStatLabels(site, deviceStat)
 		c.sendMetric(ch, c.deviceMetrics.LastSeen, prometheus.GaugeValue, float64(deviceStat.LastSeen.Unix()), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.Uptime, prometheus.GaugeValue, (time.Duration)(deviceStat.Uptime).Seconds(), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.WLANs, prometheus.GaugeValue, float64(deviceStat.NumWLANs), deviceLabels...)
@@ -157,7 +157,7 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 		c.sendMetric(ch, c.deviceMetrics.RxBps, prometheus.GaugeValue, float64(deviceStat.RxBps), deviceLabels...)
 
 		for radioConfig, radioStat := range deviceStat.RadioStats {
-			radioLabels := metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())
+			radioLabels := metrics.DeviceStatLabelsWithRadio(site, deviceStat, radioConfig.String())
 			c.sendMetric(ch, c.deviceMetrics.Clients, prometheus.GaugeValue, float64(radioStat.NumClients), radioLabels...)
 			c.sendMetric(ch, c.deviceMetrics.TxBytes, prometheus.GaugeValue, float64(radioStat.TxBytes), radioLabels...)
 			c.sendMetric(ch, c.deviceMetrics.RxBytes, prometheus.GaugeValue, float64(radioStat.RxBytes), radioLabels...)
@@ -186,7 +186,7 @@ func (c *MistCollector) collectClientMetrics(ctx context.Context, ch chan<- prom
 	}
 
 	for _, client := range clients {
-		clientLabels := metrics.ClientLabels(client)
+		clientLabels := metrics.ClientLabels(site, client)
 		c.sendMetric(ch, c.clientMetrics.LastSeen, prometheus.GaugeValue, float64(client.LastSeen.Unix()), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.Uptime, prometheus.GaugeValue, (time.Duration)(client.Uptime).Seconds(), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.Idletime, prometheus.GaugeValue, (time.Duration)(client.Idletime).Seconds(), clientLabels...)
