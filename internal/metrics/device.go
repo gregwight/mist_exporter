@@ -28,30 +28,30 @@ type DeviceMetrics struct {
 	UtilUndecodableWiFi *prometheus.Desc
 }
 
-var deviceLabels = []string{
+var deviceLabels = append(siteLabels,
 	"device_id",
 	"device_name",
 	"device_type",
 	"device_model",
 	"device_hw_rev",
-	"site_id",
-}
+)
 
-var deviceLabelsWithRadio = append(deviceLabels, "radio")
+var deviceLabelsWithRadio = append(deviceLabels,
+	"radio",
+)
 
-func DeviceStatLabels(ds mistclient.DeviceStat) []string {
-	return []string{
+func DeviceStatLabels(s mistclient.Site, ds mistclient.DeviceStat) []string {
+	return append(SiteLabels(s),
 		ds.ID,
 		ds.Name,
 		ds.Type.String(),
 		ds.Model,
 		ds.HwRev,
-		ds.SiteID,
-	}
+	)
 }
 
-func DeviceStatLabelsWithRadio(ds mistclient.DeviceStat, radio string) []string {
-	return append(DeviceStatLabels(ds), radio)
+func DeviceStatLabelsWithRadio(s mistclient.Site, ds mistclient.DeviceStat, radio string) []string {
+	return append(DeviceStatLabels(s, ds), radio)
 }
 
 func NewDeviceMetrics() *DeviceMetrics {

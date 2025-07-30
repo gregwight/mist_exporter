@@ -1,11 +1,28 @@
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/gregwight/mistclient"
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 type OrgMetrics struct {
 	Alarms  *prometheus.Desc
 	Tickets *prometheus.Desc
-	Sites   *prometheus.Desc
+	Site    *prometheus.Desc
+}
+
+var siteLabels = []string{
+	"site_id",
+	"site_name",
+	"country_code",
+}
+
+func SiteLabels(s mistclient.Site) []string {
+	return []string{
+		s.ID,
+		s.Name,
+		s.CountryCode,
+	}
 }
 
 func NewOrgMetrics() *OrgMetrics {
@@ -22,10 +39,10 @@ func NewOrgMetrics() *OrgMetrics {
 			[]string{"ticket_status"},
 			nil,
 		),
-		Sites: prometheus.NewDesc(
-			"mist_org_sites",
-			"Number of sites in the organization",
-			[]string{"site_id", "site_name", "country_code"},
+		Site: prometheus.NewDesc(
+			"mist_org_site",
+			"A site confured in the organization",
+			siteLabels,
 			nil,
 		),
 	}

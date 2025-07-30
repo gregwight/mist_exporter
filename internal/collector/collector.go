@@ -97,26 +97,25 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	// Use errgroup for concurrent collection
-	g, gCtx := errgroup.WithContext(ctx)
+	g, _ := errgroup.WithContext(ctx)
 
 	// Limit concurrency to avoid overwhelming the API
-	semaphore := make(chan struct{}, 10)
+	// Default API request limit is 5,000/hour
+	workers := 1
+	if c.config.Workers > 1 {
+		workers = c.config.Workers
+	}
+	g.SetLimit(workers)
 
 	for _, site := range sites {
 		ch <- prometheus.MustNewConstMetric(
-			c.orgMetrics.Sites,
+			c.orgMetrics.Site,
 			prometheus.GaugeValue,
 			1,
 			site.ID, site.Name, site.CountryCode,
 		)
 		g.Go(func() error {
-			select {
-			case semaphore <- struct{}{}:
-				defer func() { <-semaphore }()
-				return c.collectSiteMetrics(gCtx, ch, site)
-			case <-gCtx.Done():
-				return gCtx.Err()
-			}
+			return c.collectSiteMetrics(ch, site)
 		})
 	}
 
@@ -125,31 +124,23 @@ func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (c *MistCollector) collectSiteMetrics(ctx context.Context, ch chan<- prometheus.Metric, site mistclient.Site) error {
-	// Collect devices and clients concurrently
-	g, gCtx := errgroup.WithContext(ctx)
-
+func (c *MistCollector) collectSiteMetrics(ch chan<- prometheus.Metric, site mistclient.Site) error {
 	// Collect devices
-	g.Go(func() error {
-		return c.collectDeviceMetrics(gCtx, ch, site)
-	})
-
+	if err := c.collectDeviceMetrics(ch, site); err != nil {
+		return err
+	}
 	// Collect clients
-	g.Go(func() error {
-		return c.collectClientMetrics(gCtx, ch, site)
-	})
-
-	return g.Wait()
+	return c.collectClientMetrics(ch, site)
 }
 
-func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prometheus.Metric, site mistclient.Site) error {
+func (c *MistCollector) collectDeviceMetrics(ch chan<- prometheus.Metric, site mistclient.Site) error {
 	deviceStats, err := c.client.GetSiteDeviceStats(site.ID)
 	if err != nil {
 		return fmt.Errorf("unable to fetch device stats for site %s: %w", site.Name, err)
 	}
 
 	for _, deviceStat := range deviceStats {
-		deviceLabels := metrics.DeviceStatLabels(deviceStat)
+		deviceLabels := metrics.DeviceStatLabels(site, deviceStat)
 		c.sendMetric(ch, c.deviceMetrics.LastSeen, prometheus.GaugeValue, float64(deviceStat.LastSeen.Unix()), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.Uptime, prometheus.GaugeValue, (time.Duration)(deviceStat.Uptime).Seconds(), deviceLabels...)
 		c.sendMetric(ch, c.deviceMetrics.WLANs, prometheus.GaugeValue, float64(deviceStat.NumWLANs), deviceLabels...)
@@ -157,7 +148,7 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 		c.sendMetric(ch, c.deviceMetrics.RxBps, prometheus.GaugeValue, float64(deviceStat.RxBps), deviceLabels...)
 
 		for radioConfig, radioStat := range deviceStat.RadioStats {
-			radioLabels := metrics.DeviceStatLabelsWithRadio(deviceStat, radioConfig.String())
+			radioLabels := metrics.DeviceStatLabelsWithRadio(site, deviceStat, radioConfig.String())
 			c.sendMetric(ch, c.deviceMetrics.Clients, prometheus.GaugeValue, float64(radioStat.NumClients), radioLabels...)
 			c.sendMetric(ch, c.deviceMetrics.TxBytes, prometheus.GaugeValue, float64(radioStat.TxBytes), radioLabels...)
 			c.sendMetric(ch, c.deviceMetrics.RxBytes, prometheus.GaugeValue, float64(radioStat.RxBytes), radioLabels...)
@@ -179,14 +170,14 @@ func (c *MistCollector) collectDeviceMetrics(ctx context.Context, ch chan<- prom
 	return nil
 }
 
-func (c *MistCollector) collectClientMetrics(ctx context.Context, ch chan<- prometheus.Metric, site mistclient.Site) error {
+func (c *MistCollector) collectClientMetrics(ch chan<- prometheus.Metric, site mistclient.Site) error {
 	clients, err := c.client.GetSiteClients(site.ID)
 	if err != nil {
 		return fmt.Errorf("unable to fetch client stats for site %s: %w", site.Name, err)
 	}
 
 	for _, client := range clients {
-		clientLabels := metrics.ClientLabels(client)
+		clientLabels := metrics.ClientLabels(site, client)
 		c.sendMetric(ch, c.clientMetrics.LastSeen, prometheus.GaugeValue, float64(client.LastSeen.Unix()), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.Uptime, prometheus.GaugeValue, (time.Duration)(client.Uptime).Seconds(), clientLabels...)
 		c.sendMetric(ch, c.clientMetrics.Idletime, prometheus.GaugeValue, (time.Duration)(client.Idletime).Seconds(), clientLabels...)

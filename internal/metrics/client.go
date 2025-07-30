@@ -26,32 +26,30 @@ type ClientMetrics struct {
 	RxRetries   *prometheus.Desc
 }
 
-var clientLabels = []string{
+var clientLabels = append(siteLabels,
 	"client_mac",
-	"ap_id",
-	"ap_mac",
-	"username",
-	"hostname",
-	"os",
-	"manufacture",
-	"family",
-	"model",
+	"client_username",
+	"client_hostname",
+	"client_os",
+	"client_manufacture",
+	"client_family",
+	"client_model",
+	"device_id",
 	"ssid",
-}
+)
 
-func ClientLabels(c mistclient.Client) []string {
-	return []string{
+func ClientLabels(s mistclient.Site, c mistclient.Client) []string {
+	return append(SiteLabels(s),
 		c.Mac,
-		c.APID,
-		c.APMac,
 		c.Username,
 		c.Hostname,
 		c.OS,
 		c.Manufacture,
 		c.Family,
 		c.Model,
+		c.APID,
 		c.SSID,
-	}
+	)
 }
 
 func NewClientMetrics() *ClientMetrics {
@@ -106,61 +104,61 @@ func NewClientMetrics() *ClientMetrics {
 		),
 		TxRate: prometheus.NewDesc(
 			"mist_client_tx_rate",
-			"Client's transmit rate (Mbps)",
+			"Transmit rate to client (Mbps)",
 			clientLabels,
 			nil,
 		),
 		RxRate: prometheus.NewDesc(
 			"mist_client_rx_rate",
-			"Client's receive rate (Mbps)",
+			"Receive rate from client (Mbps)",
 			clientLabels,
 			nil,
 		),
 		TxBytes: prometheus.NewDesc(
 			"mist_client_tx_bytes",
-			"Client's transmitted bytes",
+			"Bytes transmitted to client since connect",
 			clientLabels,
 			nil,
 		),
 		RxBytes: prometheus.NewDesc(
 			"mist_client_rx_bytes",
-			"Client's received bytes",
+			"Bytes received from client since connect",
 			clientLabels,
 			nil,
 		),
 		TxBps: prometheus.NewDesc(
 			"mist_client_tx_bps",
-			"Client's transmit rate (bps))",
+			"Transmit rate to client (bps) last known",
 			clientLabels,
 			nil,
 		),
 		RxBps: prometheus.NewDesc(
 			"mist_client_rx_bps",
-			"Client's receive rate (bps)",
+			"Receive rate from client (bps) last known",
 			clientLabels,
 			nil,
 		),
 		TxPackets: prometheus.NewDesc(
 			"mist_client_tx_packets",
-			"Client's transmitted packets",
+			"Packets transmitted to client since connect",
 			clientLabels,
 			nil,
 		),
 		RxPackets: prometheus.NewDesc(
 			"mist_client_rx_packets",
-			"Client's received packets",
+			"Packets received from client since connect",
 			clientLabels,
 			nil,
 		),
 		TxRetries: prometheus.NewDesc(
 			"mist_client_tx_retries",
-			"Client's transmit retries",
+			"Number of transmit retries to client since connect",
 			clientLabels,
 			nil,
 		),
 		RxRetries: prometheus.NewDesc(
 			"mist_client_rx_retries",
-			"Client's received retries",
+			"Number of receive retries from client since connect",
 			clientLabels,
 			nil,
 		),
