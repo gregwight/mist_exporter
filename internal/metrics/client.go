@@ -36,6 +36,7 @@ var clientLabels = append(siteLabels,
 	"client_model",
 	"device_id",
 	"ssid",
+	"radio",
 )
 
 func ClientLabels(s mistclient.Site, c mistclient.Client) []string {
@@ -49,6 +50,7 @@ func ClientLabels(s mistclient.Site, c mistclient.Client) []string {
 		c.Model,
 		c.APID,
 		c.SSID,
+		c.Band.String(),
 	)
 }
 
