@@ -136,25 +136,25 @@ func TestMistCollector_Collect(t *testing.T) {
 		expected := `
 			# HELP mist_client_last_seen Client last seen time
 			# TYPE mist_client_last_seen gauge
-			mist_client_last_seen{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 1.672531201e+09
+			mist_client_last_seen{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 1.672531201e+09
 			# HELP mist_client_idletime Client idle time (s), since the last RX packet
 			# TYPE mist_client_idletime gauge
-			mist_client_idletime{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 10
+			mist_client_idletime{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 10
 			# HELP mist_client_rssi Client's received signal strength indicator (dBm)
 			# TYPE mist_client_rssi gauge
-			mist_client_rssi{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} -60
+			mist_client_rssi{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} -60
 			# HELP mist_client_rx_bytes Bytes received from client since connect
 			# TYPE mist_client_rx_bytes gauge
-			mist_client_rx_bytes{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 1024
+			mist_client_rx_bytes{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 1024
 			# HELP mist_client_snr Client's signal to noise ratio
 			# TYPE mist_client_snr gauge
-			mist_client_snr{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 30
+			mist_client_snr{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 30
 			# HELP mist_client_tx_bytes Bytes transmitted to client since connect
 			# TYPE mist_client_tx_bytes gauge
-			mist_client_tx_bytes{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 512
+			mist_client_tx_bytes{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 512
 			# HELP mist_client_uptime Client connected time (s)
 			# TYPE mist_client_uptime gauge
-			mist_client_uptime{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 3600
+			mist_client_uptime{client_family="",client_hostname="test-client",client_mac="aa:bb:cc:dd:ee:ff",client_manufacture="",client_model="",client_os="macOS",client_username="",country_code="US",device_id="device-1",radio="2.4",site_id="site-1",site_name="Test Site",ssid="TestSSID"} 3600
 		`
 		err := testutil.CollectAndCompare(collector, strings.NewReader(expected),
 			"mist_client_last_seen", "mist_client_uptime", "mist_client_idletime", "mist_client_rssi", "mist_client_snr", "mist_client_tx_bytes", "mist_client_rx_bytes")
