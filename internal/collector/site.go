@@ -8,73 +8,73 @@ import (
 var (
 	latDesc = prometheus.NewDesc(
 		"mist_site_lat",
-		"Site latitude",
+		"Geographic latitude of the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	lngDesc = prometheus.NewDesc(
 		"mist_site_lng",
-		"Site longitude",
+		"Geographic longitude of the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	modifiedTimeDesc = prometheus.NewDesc(
 		"mist_site_modified_time",
-		"Site last modified time",
+		"The last time site was modified, as a Unix timestamp.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numAPDesc = prometheus.NewDesc(
 		"mist_site_num_ap",
-		"Number of APs in the site",
+		"Total number of APs configured for the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numAPConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_ap_connected",
-		"Number of connected APs in the site",
+		"Number of APs currently online at the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numClientsDesc = prometheus.NewDesc(
 		"mist_site_num_clients",
-		"Number of clients in the site",
+		"Total number of clients currently connected to the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numDevicesDesc = prometheus.NewDesc(
 		"mist_site_num_devices",
-		"Number of devices in the site",
+		"Total number of Mist devices (APs, switches, gateways) at the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numDevicesConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_devices_connected",
-		"Number of connected devices in the site",
+		"Number of Mist devices (APs, switches, gateways) currently online at the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numGatewayDesc = prometheus.NewDesc(
 		"mist_site_num_gateway",
-		"Number of gateways in the site",
+		"Total number of gateways configured for the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numGatewayConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_gateway_connected",
-		"Number of connected gateways in the site",
+		"Number of gateways currently online at the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numSwitchDesc = prometheus.NewDesc(
 		"mist_site_num_switch",
-		"Number of switches in the site",
+		"Total number of switches configured for the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numSwitchConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_switch_connected",
-		"Number of connected switches in the site",
+		"Number of switches currently online at the site.",
 		metrics.SiteLabelNames,
 		nil,
 	)

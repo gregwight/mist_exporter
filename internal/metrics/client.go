@@ -38,26 +38,26 @@ func ClientLabelValues(s mistclient.Site, c mistclient.Client) []string {
 var clientMetrics *ClientMetrics
 
 type ClientMetrics struct {
-	channel        *prometheus.GaugeVec
-	dualBand       *prometheus.GaugeVec
-	idletime       *prometheus.GaugeVec
-	isGuest        *prometheus.GaugeVec
-	lastSeen       *prometheus.GaugeVec
-	numLocatingAPs *prometheus.GaugeVec
-	powerSaving    *prometheus.GaugeVec
-	rssi           *prometheus.GaugeVec
-	rxBps          *prometheus.GaugeVec
-	rxBytes        *prometheus.GaugeVec
-	rxPackets      *prometheus.GaugeVec
-	rxRate         *prometheus.GaugeVec
-	rxRetries      *prometheus.GaugeVec
-	snr            *prometheus.GaugeVec
-	txBps          *prometheus.GaugeVec
-	txBytes        *prometheus.GaugeVec
-	txPackets      *prometheus.GaugeVec
-	txRate         *prometheus.GaugeVec
-	txRetries      *prometheus.GaugeVec
-	uptime         *prometheus.GaugeVec
+	channel               *prometheus.GaugeVec
+	dualBandCapable       *prometheus.GaugeVec
+	idleSeconds           *prometheus.GaugeVec
+	isGuest               *prometheus.GaugeVec
+	lastSeenTimestamp     *prometheus.GaugeVec
+	locatingAps           *prometheus.GaugeVec
+	powerSavingModeActive *prometheus.GaugeVec
+	rssiDbm               *prometheus.GaugeVec
+	receiveBps            *prometheus.GaugeVec
+	receiveBytesTotal     *prometheus.GaugeVec
+	receivePacketsTotal   *prometheus.GaugeVec
+	receiveRateMbps       *prometheus.GaugeVec
+	receiveRetriesTotal   *prometheus.GaugeVec
+	snrDb                 *prometheus.GaugeVec
+	transmitBps           *prometheus.GaugeVec
+	transmitBytesTotal    *prometheus.GaugeVec
+	transmitPacketsTotal  *prometheus.GaugeVec
+	transmitRateMbps      *prometheus.GaugeVec
+	transmitRetriesTotal  *prometheus.GaugeVec
+	uptimeSeconds         *prometheus.GaugeVec
 }
 
 func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
@@ -67,184 +67,184 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 				Namespace: "mist",
 				Subsystem: "client",
 				Name:      "channel",
-				Help:      "",
+				Help:      "The channel the client is connected on.",
 			}, ClientLabelNames,
 		),
-		dualBand: prometheus.NewGaugeVec(
+		dualBandCapable: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "dual_band",
-				Help:      "",
+				Name:      "dual_band_capable",
+				Help:      "Whether the client is dual-band capable (1 for true, 0 for false).",
 			}, ClientLabelNames,
 		),
-		idletime: prometheus.NewGaugeVec(
+		idleSeconds: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "idletime",
-				Help:      "",
+				Name:      "idle_seconds",
+				Help:      "Time in seconds since the client was last active.",
 			}, ClientLabelNames,
 		),
 		isGuest: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "is_guest",
-				Help:      "",
+				Name:      "is_guest_status",
+				Help:      "Whether the client is a guest user (1 for true, 0 for false).",
 			}, ClientLabelNames,
 		),
-		lastSeen: prometheus.NewGaugeVec(
+		lastSeenTimestamp: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "last_seen",
-				Help:      "",
+				Name:      "last_seen_timestamp_seconds",
+				Help:      "The last time the client was seen, as a Unix timestamp.",
 			}, ClientLabelNames,
 		),
-		numLocatingAPs: prometheus.NewGaugeVec(
+		locatingAps: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "num_locating_aps",
-				Help:      "",
+				Name:      "locating_aps_total",
+				Help:      "The number of APs that can hear the client.",
 			}, ClientLabelNames,
 		),
-		powerSaving: prometheus.NewGaugeVec(
+		powerSavingModeActive: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "power_saving",
-				Help:      "",
+				Name:      "power_saving_mode_active",
+				Help:      "Whether the client is in power-saving mode (1 for true, 0 for false).",
 			}, ClientLabelNames,
 		),
-		rssi: prometheus.NewGaugeVec(
+		rssiDbm: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "rssi",
-				Help:      "",
+				Name:      "rssi_dbm",
+				Help:      "The client's Received Signal Strength Indicator in dBm.",
 			}, ClientLabelNames,
 		),
-		rxBps: prometheus.NewGaugeVec(
+		receiveBps: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "rx_bps",
-				Help:      "",
+				Name:      "receive_bits_per_second",
+				Help:      "Bits per second received from the client.",
 			}, ClientLabelNames,
 		),
-		rxBytes: prometheus.NewGaugeVec(
+		receiveBytesTotal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "rx_bytes",
-				Help:      "",
+				Name:      "receive_bytes_total",
+				Help:      "Total bytes received from the client.",
 			}, ClientLabelNames,
 		),
-		rxPackets: prometheus.NewGaugeVec(
+		receivePacketsTotal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "rx_packets",
-				Help:      "",
+				Name:      "receive_packets_total",
+				Help:      "Total packets received from the client.",
 			}, ClientLabelNames,
 		),
-		rxRate: prometheus.NewGaugeVec(
+		receiveRateMbps: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "rx_rate",
-				Help:      "",
+				Name:      "receive_rate_mbps",
+				Help:      "The receive data rate in Mbps.",
 			}, ClientLabelNames,
 		),
-		rxRetries: prometheus.NewGaugeVec(
+		receiveRetriesTotal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "rx_retries",
-				Help:      "",
+				Name:      "receive_retries_total",
+				Help:      "Total number of receive retries.",
 			}, ClientLabelNames,
 		),
-		snr: prometheus.NewGaugeVec(
+		snrDb: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "snr",
-				Help:      "",
+				Name:      "snr_db",
+				Help:      "The client's Signal-to-Noise Ratio in dB.",
 			}, ClientLabelNames,
 		),
-		txBps: prometheus.NewGaugeVec(
+		transmitBps: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "tx_bps",
-				Help:      "",
+				Name:      "transmit_bits_per_second",
+				Help:      "Bits per second transmitted to the client.",
 			}, ClientLabelNames,
 		),
-		txBytes: prometheus.NewGaugeVec(
+		transmitBytesTotal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "tx_bytes",
-				Help:      "",
+				Name:      "transmit_bytes_total",
+				Help:      "Total bytes transmitted to the client.",
 			}, ClientLabelNames,
 		),
-		txPackets: prometheus.NewGaugeVec(
+		transmitPacketsTotal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "tx_packets",
-				Help:      "",
+				Name:      "transmit_packets_total",
+				Help:      "Total packets transmitted to the client.",
 			}, ClientLabelNames,
 		),
-		txRate: prometheus.NewGaugeVec(
+		transmitRateMbps: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "tx_rate",
-				Help:      "",
+				Name:      "transmit_rate_mbps",
+				Help:      "The transmit data rate in Mbps.",
 			}, ClientLabelNames,
 		),
-		txRetries: prometheus.NewGaugeVec(
+		transmitRetriesTotal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "tx_retries",
-				Help:      "",
+				Name:      "transmit_retries_total",
+				Help:      "Total number of transmit retries.",
 			}, ClientLabelNames,
 		),
-		uptime: prometheus.NewGaugeVec(
+		uptimeSeconds: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "uptime",
-				Help:      "",
+				Name:      "uptime_seconds",
+				Help:      "The client's session uptime in seconds.",
 			}, ClientLabelNames,
 		),
 	}
 
 	reg.MustRegister(
 		m.channel,
-		m.dualBand,
-		m.idletime,
+		m.dualBandCapable,
+		m.idleSeconds,
 		m.isGuest,
-		m.lastSeen,
-		m.numLocatingAPs,
-		m.powerSaving,
-		m.rssi,
-		m.rxBps,
-		m.rxBytes,
-		m.rxPackets,
-		m.rxRate,
-		m.rxRetries,
-		m.snr,
-		m.txBps,
-		m.txBytes,
-		m.txPackets,
-		m.txRate,
-		m.txRetries,
-		m.uptime,
+		m.lastSeenTimestamp,
+		m.locatingAps,
+		m.powerSavingModeActive,
+		m.rssiDbm,
+		m.receiveBps,
+		m.receiveBytesTotal,
+		m.receivePacketsTotal,
+		m.receiveRateMbps,
+		m.receiveRetriesTotal,
+		m.snrDb,
+		m.transmitBps,
+		m.transmitBytesTotal,
+		m.transmitPacketsTotal,
+		m.transmitRateMbps,
+		m.transmitRetriesTotal,
+		m.uptimeSeconds,
 	)
 
 	return m
@@ -254,23 +254,23 @@ func handleSiteClientStat(site mistclient.Site, stat mistclient.Client) {
 	labels := ClientLabelValues(site, stat)
 
 	clientMetrics.channel.WithLabelValues(labels...).Set(float64(stat.Channel))
-	clientMetrics.dualBand.WithLabelValues(labels...).Set(boolToFloat64(stat.DualBand))
-	clientMetrics.idletime.WithLabelValues(labels...).Set(float64(stat.Idletime))
+	clientMetrics.dualBandCapable.WithLabelValues(labels...).Set(boolToFloat64(stat.DualBand))
+	clientMetrics.idleSeconds.WithLabelValues(labels...).Set(float64(stat.Idletime))
 	clientMetrics.isGuest.WithLabelValues(labels...).Set(boolToFloat64(stat.IsGuest))
-	clientMetrics.lastSeen.WithLabelValues(labels...).Set(float64(stat.LastSeen.Unix()))
-	clientMetrics.numLocatingAPs.WithLabelValues(labels...).Set(float64(stat.NumLocatingAPs))
-	clientMetrics.powerSaving.WithLabelValues(labels...).Set(boolToFloat64(stat.PowerSaving))
-	clientMetrics.rssi.WithLabelValues(labels...).Set(float64(stat.RSSI))
-	clientMetrics.rxBps.WithLabelValues(labels...).Set(float64(stat.RxBps))
-	clientMetrics.rxBytes.WithLabelValues(labels...).Set(float64(stat.RxBytes))
-	clientMetrics.rxPackets.WithLabelValues(labels...).Set(float64(stat.RxPackets))
-	clientMetrics.rxRate.WithLabelValues(labels...).Set(float64(stat.RxRate))
-	clientMetrics.rxRetries.WithLabelValues(labels...).Set(float64(stat.RxRetries))
-	clientMetrics.snr.WithLabelValues(labels...).Set(float64(stat.SNR))
-	clientMetrics.txBps.WithLabelValues(labels...).Set(float64(stat.TxBps))
-	clientMetrics.txBytes.WithLabelValues(labels...).Set(float64(stat.TxBytes))
-	clientMetrics.txPackets.WithLabelValues(labels...).Set(float64(stat.TxPackets))
-	clientMetrics.txRate.WithLabelValues(labels...).Set(float64(stat.TxRate))
-	clientMetrics.txRetries.WithLabelValues(labels...).Set(float64(stat.TxRetries))
-	clientMetrics.uptime.WithLabelValues(labels...).Set(float64(stat.Uptime))
+	clientMetrics.lastSeenTimestamp.WithLabelValues(labels...).Set(float64(stat.LastSeen.Unix()))
+	clientMetrics.locatingAps.WithLabelValues(labels...).Set(float64(stat.NumLocatingAPs))
+	clientMetrics.powerSavingModeActive.WithLabelValues(labels...).Set(boolToFloat64(stat.PowerSaving))
+	clientMetrics.rssiDbm.WithLabelValues(labels...).Set(float64(stat.RSSI))
+	clientMetrics.receiveBps.WithLabelValues(labels...).Set(float64(stat.RxBps))
+	clientMetrics.receiveBytesTotal.WithLabelValues(labels...).Set(float64(stat.RxBytes))
+	clientMetrics.receivePacketsTotal.WithLabelValues(labels...).Set(float64(stat.RxPackets))
+	clientMetrics.receiveRateMbps.WithLabelValues(labels...).Set(float64(stat.RxRate))
+	clientMetrics.receiveRetriesTotal.WithLabelValues(labels...).Set(float64(stat.RxRetries))
+	clientMetrics.snrDb.WithLabelValues(labels...).Set(float64(stat.SNR))
+	clientMetrics.transmitBps.WithLabelValues(labels...).Set(float64(stat.TxBps))
+	clientMetrics.transmitBytesTotal.WithLabelValues(labels...).Set(float64(stat.TxBytes))
+	clientMetrics.transmitPacketsTotal.WithLabelValues(labels...).Set(float64(stat.TxPackets))
+	clientMetrics.transmitRateMbps.WithLabelValues(labels...).Set(float64(stat.TxRate))
+	clientMetrics.transmitRetriesTotal.WithLabelValues(labels...).Set(float64(stat.TxRetries))
+	clientMetrics.uptimeSeconds.WithLabelValues(labels...).Set(float64(stat.Uptime))
 }
