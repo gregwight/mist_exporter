@@ -5,30 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type DeviceMetrics struct {
-	LastSeen            *prometheus.Desc
-	Uptime              *prometheus.Desc
-	WLANs               *prometheus.Desc
-	Clients             *prometheus.Desc
-	TxBps               *prometheus.Desc
-	RxBps               *prometheus.Desc
-	TxBytes             *prometheus.Desc
-	RxBytes             *prometheus.Desc
-	TxPackets           *prometheus.Desc
-	RxPackets           *prometheus.Desc
-	Power               *prometheus.Desc
-	Channel             *prometheus.Desc
-	Bandwidth           *prometheus.Desc
-	UtilAll             *prometheus.Desc
-	UtilTx              *prometheus.Desc
-	UtilRxInBSS         *prometheus.Desc
-	UtilRxOtherBSS      *prometheus.Desc
-	UtilUnknownWiFi     *prometheus.Desc
-	UtilNonWiFi         *prometheus.Desc
-	UtilUndecodableWiFi *prometheus.Desc
-}
-
-var deviceLabels = append(siteLabels,
+var DeviceLabelNames = append(SiteLabelNames,
 	"device_id",
 	"device_name",
 	"device_type",
@@ -36,12 +13,12 @@ var deviceLabels = append(siteLabels,
 	"device_hw_rev",
 )
 
-var deviceLabelsWithRadio = append(deviceLabels,
+var DeviceWithRadioLabelNames = append(DeviceLabelNames,
 	"radio",
 )
 
-func DeviceStatLabels(s mistclient.Site, ds mistclient.DeviceStat) []string {
-	return append(SiteLabels(s),
+func DeviceLabelValues(s mistclient.Site, ds mistclient.DeviceStat) []string {
+	return append(SiteLabelValues(s),
 		ds.ID,
 		ds.Name,
 		ds.Type.String(),
@@ -50,131 +27,476 @@ func DeviceStatLabels(s mistclient.Site, ds mistclient.DeviceStat) []string {
 	)
 }
 
-func DeviceStatLabelsWithRadio(s mistclient.Site, ds mistclient.DeviceStat, radio string) []string {
-	return append(DeviceStatLabels(s, ds), radio)
+func DeviceWithRadioLabelValues(s mistclient.Site, ds mistclient.DeviceStat, radio string) []string {
+	return append(DeviceLabelValues(s, ds), radio)
 }
 
-func NewDeviceMetrics() *DeviceMetrics {
-	return &DeviceMetrics{
-		LastSeen: prometheus.NewDesc(
-			"mist_device_last_seen",
-			"Device last seen time",
-			deviceLabels,
-			nil,
+var deviceMetrics *DeviceMetrics
+
+type DeviceMetrics struct {
+	accelX           *prometheus.GaugeVec
+	accelY           *prometheus.GaugeVec
+	accelZ           *prometheus.GaugeVec
+	ambientTemp      *prometheus.GaugeVec
+	attitude         *prometheus.GaugeVec
+	cpuTemp          *prometheus.GaugeVec
+	cpuUtil          *prometheus.GaugeVec
+	createdTime      *prometheus.GaugeVec
+	humidity         *prometheus.GaugeVec
+	lastSeen         *prometheus.GaugeVec
+	magneX           *prometheus.GaugeVec
+	magneY           *prometheus.GaugeVec
+	magneZ           *prometheus.GaugeVec
+	modifiedTime     *prometheus.GaugeVec
+	powerBudget      *prometheus.GaugeVec
+	powerConstrained *prometheus.GaugeVec
+	pressure         *prometheus.GaugeVec
+	rxBps            *prometheus.GaugeVec
+	status           *prometheus.GaugeVec
+	txBps            *prometheus.GaugeVec
+	uptime           *prometheus.GaugeVec
+	vcoreVoltage     *prometheus.GaugeVec
+
+	// Radio metrics
+	bandwidth              *prometheus.GaugeVec
+	channel                *prometheus.GaugeVec
+	dynamicChainingEnabled *prometheus.GaugeVec
+	noiseFloor             *prometheus.GaugeVec
+	numClients             *prometheus.GaugeVec
+	numWLANs               *prometheus.GaugeVec
+	power                  *prometheus.GaugeVec
+	rxBytes                *prometheus.GaugeVec
+	rxPackets              *prometheus.GaugeVec
+	txBytes                *prometheus.GaugeVec
+	txPackets              *prometheus.GaugeVec
+	utilAll                *prometheus.GaugeVec
+	utilNonWiFi            *prometheus.GaugeVec
+	utilRxInBSS            *prometheus.GaugeVec
+	utilRxOtherBSS         *prometheus.GaugeVec
+	utilTx                 *prometheus.GaugeVec
+	utilUndecodableWiFi    *prometheus.GaugeVec
+	utilUnknownWiFi        *prometheus.GaugeVec
+}
+
+func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
+	m := &DeviceMetrics{
+		accelX: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "accel_x",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		Uptime: prometheus.NewDesc(
-			"mist_device_uptime",
-			"Device uptime (s)",
-			deviceLabels,
-			nil,
+		accelZ: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "accel_z",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		WLANs: prometheus.NewDesc(
-			"mist_device_wlans",
-			"Number of WLANs assigned to the device",
-			deviceLabels,
-			nil,
+		accelY: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "accel_y",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		TxBps: prometheus.NewDesc(
-			"mist_device_tx_bps",
-			"Device's transmit rate (bps)",
-			deviceLabels,
-			nil,
+		ambientTemp: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "ambient_temp",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		RxBps: prometheus.NewDesc(
-			"mist_device_rx_bps",
-			"Device's receive rate (bps)",
-			deviceLabels,
-			nil,
+		attitude: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "attitude",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		Clients: prometheus.NewDesc(
-			"mist_device_clients",
-			"Number of clients connected to the device",
-			deviceLabelsWithRadio,
-			nil,
+		cpuTemp: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "cpu_temp",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		TxBytes: prometheus.NewDesc(
-			"mist_device_tx_bytes",
-			"Device's transmitted bytes",
-			deviceLabelsWithRadio,
-			nil,
+		cpuUtil: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "cpu_util",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		RxBytes: prometheus.NewDesc(
-			"mist_device_rx_bytes",
-			"Device's received bytes",
-			deviceLabelsWithRadio,
-			nil,
+		createdTime: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "created_time",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		TxPackets: prometheus.NewDesc(
-			"mist_device_tx_packets",
-			"Device's transmitted packets",
-			deviceLabelsWithRadio,
-			nil,
+		humidity: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "humidity",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		RxPackets: prometheus.NewDesc(
-			"mist_device_rx_packets",
-			"Device's received packets",
-			deviceLabelsWithRadio,
-			nil,
+		lastSeen: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "last_seen",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		Power: prometheus.NewDesc(
-			"mist_device_power",
-			"Device's transmit power (dBm)",
-			deviceLabelsWithRadio,
-			nil,
+		magneX: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "magne_x",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		Channel: prometheus.NewDesc(
-			"mist_device_channel",
-			"Device's current channel",
-			deviceLabelsWithRadio,
-			nil,
+		magneY: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "magne_y",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		Bandwidth: prometheus.NewDesc(
-			"mist_device_bandwidth",
-			"Device's current channel bandwidth, 20/40/80/160 MHz",
-			deviceLabelsWithRadio,
-			nil,
+		magneZ: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "magne_z",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilAll: prometheus.NewDesc(
-			"mist_device_util_all",
-			"Device's all utilization (%)",
-			deviceLabelsWithRadio,
-			nil,
+		modifiedTime: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "modified_time",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilTx: prometheus.NewDesc(
-			"mist_device_util_tx",
-			"Device's transmit utilization (%)",
-			deviceLabelsWithRadio,
-			nil,
+		powerBudget: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "power_budget",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilRxInBSS: prometheus.NewDesc(
-			"mist_device_util_rx_in_bss",
-			"Device's reception of “In BSS” utilization (%), only frames that are received from AP/STAs within the BSS",
-			deviceLabelsWithRadio,
-			nil,
+		powerConstrained: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "power_constrained",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilRxOtherBSS: prometheus.NewDesc(
-			"mist_device_util_rx_other_bss",
-			"Device's eeception of “Other BSS” utilization (%), all frames received from AP/STAs that are outside the BSS",
-			deviceLabelsWithRadio,
-			nil,
+		pressure: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "pressure",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilUnknownWiFi: prometheus.NewDesc(
-			"mist_device_util_unknown_wifi",
-			"Device's reception of “No Category” utilization (%), all 802.11 frames that are corrupted at the receiver",
-			deviceLabelsWithRadio,
-			nil,
+		rxBps: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "rx_bps",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilNonWiFi: prometheus.NewDesc(
-			"mist_device_util_non_wifi",
-			"Device's reception of “No Packets” utilization (%), received frames with invalid PLCPs and CRC glitches as noise",
-			deviceLabelsWithRadio,
-			nil,
+		status: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "status",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
-		UtilUndecodableWiFi: prometheus.NewDesc(
-			"mist_device_util_undecodable_wifi",
-			"Device's reception of “UnDecodable Wifi” utilization (%), only Preamble, PLCP header is decoded, rest is undecodable in this radio",
-			deviceLabelsWithRadio,
-			nil,
+		txBps: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "tx_bps",
+				Help:      "",
+			}, DeviceLabelNames,
 		),
+		uptime: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "uptime",
+				Help:      "",
+			}, DeviceLabelNames,
+		),
+		vcoreVoltage: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "vcore_voltage",
+				Help:      "",
+			}, DeviceLabelNames,
+		),
+
+		// Radio metrics
+		bandwidth: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "bandwidth",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		channel: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "channel",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		dynamicChainingEnabled: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "dynamic_chaining_enabled",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		noiseFloor: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "noise_floor",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		numClients: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "num_clients",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		numWLANs: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "num_wlans",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		power: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "power",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		rxBytes: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "rx_bytes",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		rxPackets: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "rx_packets",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		txBytes: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "tx_bytes",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		txPackets: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "tx_packets",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilAll: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_all",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilNonWiFi: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_non_wifi",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilRxInBSS: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_rx_in_bss",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilRxOtherBSS: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_rx_other_bss",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilTx: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_tx",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilUndecodableWiFi: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_undecodable_wifi",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+		utilUnknownWiFi: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "device",
+				Name:      "util_unknown_wifi",
+				Help:      "",
+			}, DeviceWithRadioLabelNames,
+		),
+	}
+
+	reg.MustRegister(
+		m.accelX,
+		m.accelZ,
+		m.accelY,
+		m.ambientTemp,
+		m.attitude,
+		m.bandwidth,
+		m.channel,
+		m.cpuTemp,
+		m.cpuUtil,
+		m.createdTime,
+		m.dynamicChainingEnabled,
+		m.humidity,
+		m.lastSeen,
+		m.magneX,
+		m.magneY,
+		m.magneZ,
+		m.modifiedTime,
+		m.noiseFloor,
+		m.numClients,
+		m.numWLANs,
+		m.power,
+		m.powerBudget,
+		m.powerConstrained,
+		m.pressure,
+		m.rxBps,
+		m.rxBytes,
+		m.rxPackets,
+		m.status,
+		m.txBps,
+		m.txBytes,
+		m.txPackets,
+		m.uptime,
+		m.utilAll,
+		m.utilNonWiFi,
+		m.utilRxInBSS,
+		m.utilRxOtherBSS,
+		m.utilTx,
+		m.utilUndecodableWiFi,
+		m.utilUnknownWiFi,
+		m.vcoreVoltage,
+	)
+
+	return m
+}
+
+func handleSiteDeviceStat(site mistclient.Site, stat mistclient.DeviceStat) {
+	labels := DeviceLabelValues(site, stat)
+
+	deviceMetrics.accelX.WithLabelValues(labels...).Set(float64(stat.EnvStat.AccelX))
+	deviceMetrics.accelY.WithLabelValues(labels...).Set(float64(stat.EnvStat.AccelY))
+	deviceMetrics.accelZ.WithLabelValues(labels...).Set(float64(stat.EnvStat.AccelZ))
+	deviceMetrics.ambientTemp.WithLabelValues(labels...).Set(float64(stat.EnvStat.AmbientTemp))
+	deviceMetrics.attitude.WithLabelValues(labels...).Set(float64(stat.EnvStat.Attitude))
+	deviceMetrics.cpuTemp.WithLabelValues(labels...).Set(float64(stat.EnvStat.CPUTemp))
+	deviceMetrics.cpuUtil.WithLabelValues(labels...).Set(float64(stat.CPUUtil))
+	deviceMetrics.createdTime.WithLabelValues(labels...).Set(float64(stat.CreatedTime.Unix()))
+	deviceMetrics.humidity.WithLabelValues(labels...).Set(float64(stat.EnvStat.Humidity))
+	deviceMetrics.lastSeen.WithLabelValues(labels...).Set(float64(stat.LastSeen.Unix()))
+	deviceMetrics.magneX.WithLabelValues(labels...).Set(float64(stat.EnvStat.MagneX))
+	deviceMetrics.magneY.WithLabelValues(labels...).Set(float64(stat.EnvStat.MagneY))
+	deviceMetrics.magneZ.WithLabelValues(labels...).Set(float64(stat.EnvStat.MagneZ))
+	deviceMetrics.modifiedTime.WithLabelValues(labels...).Set(float64(stat.ModifiedTime.Unix()))
+	deviceMetrics.powerBudget.WithLabelValues(labels...).Set(float64(stat.PowerBudget))
+	deviceMetrics.powerConstrained.WithLabelValues(labels...).Set(boolToFloat64(stat.PowerConstrained))
+	deviceMetrics.pressure.WithLabelValues(labels...).Set(float64(stat.EnvStat.Pressure))
+	deviceMetrics.rxBps.WithLabelValues(labels...).Set(float64(stat.RxBps))
+	deviceMetrics.status.WithLabelValues(labels...).Set(float64(stat.Status))
+	deviceMetrics.txBps.WithLabelValues(labels...).Set(float64(stat.TxBps))
+	deviceMetrics.uptime.WithLabelValues(labels...).Set(float64(stat.Uptime))
+	deviceMetrics.vcoreVoltage.WithLabelValues(labels...).Set(float64(stat.EnvStat.VcoreVoltage))
+
+	// Radio metrics
+	for radioConfig, radioStat := range stat.RadioStats {
+		labels := DeviceWithRadioLabelValues(site, stat, radioConfig.String())
+
+		deviceMetrics.bandwidth.WithLabelValues(labels...).Set(float64(radioStat.Bandwidth))
+		deviceMetrics.channel.WithLabelValues(labels...).Set(float64(radioStat.Channel))
+		deviceMetrics.dynamicChainingEnabled.WithLabelValues(labels...).Set(boolToFloat64(radioStat.DynamicChainingEnabled))
+		deviceMetrics.noiseFloor.WithLabelValues(labels...).Set(float64(radioStat.NoiseFloor))
+		deviceMetrics.numClients.WithLabelValues(labels...).Set(float64(radioStat.NumClients))
+		deviceMetrics.numWLANs.WithLabelValues(labels...).Set(float64(radioStat.NumWLANs))
+		deviceMetrics.power.WithLabelValues(labels...).Set(float64(radioStat.Power))
+		deviceMetrics.rxBytes.WithLabelValues(labels...).Set(float64(radioStat.RxBytes))
+		deviceMetrics.rxPackets.WithLabelValues(labels...).Set(float64(radioStat.RxPkts))
+		deviceMetrics.txBytes.WithLabelValues(labels...).Set(float64(radioStat.TxBytes))
+		deviceMetrics.txPackets.WithLabelValues(labels...).Set(float64(radioStat.TxPkts))
+		deviceMetrics.utilAll.WithLabelValues(labels...).Set(float64(radioStat.UtilAll))
+		deviceMetrics.utilNonWiFi.WithLabelValues(labels...).Set(float64(radioStat.UtilNonWiFi))
+		deviceMetrics.utilRxInBSS.WithLabelValues(labels...).Set(float64(radioStat.UtilRxInBSS))
+		deviceMetrics.utilRxOtherBSS.WithLabelValues(labels...).Set(float64(radioStat.UtilRxOtherBSS))
+		deviceMetrics.utilTx.WithLabelValues(labels...).Set(float64(radioStat.UtilTx))
+		deviceMetrics.utilUndecodableWiFi.WithLabelValues(labels...).Set(float64(radioStat.UtilUndecodableWiFi))
+		deviceMetrics.utilUnknownWiFi.WithLabelValues(labels...).Set(float64(radioStat.UtilUnknownWiFi))
 	}
 }

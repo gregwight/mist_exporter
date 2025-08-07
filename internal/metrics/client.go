@@ -5,28 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type ClientMetrics struct {
-	LastSeen    *prometheus.Desc
-	Uptime      *prometheus.Desc
-	Idletime    *prometheus.Desc
-	PowerSaving *prometheus.Desc
-	DualBand    *prometheus.Desc
-	Channel     *prometheus.Desc
-	RSSI        *prometheus.Desc
-	SNR         *prometheus.Desc
-	TxRate      *prometheus.Desc
-	RxRate      *prometheus.Desc
-	TxBytes     *prometheus.Desc
-	RxBytes     *prometheus.Desc
-	TxBps       *prometheus.Desc
-	RxBps       *prometheus.Desc
-	TxPackets   *prometheus.Desc
-	RxPackets   *prometheus.Desc
-	TxRetries   *prometheus.Desc
-	RxRetries   *prometheus.Desc
-}
-
-var clientLabels = append(siteLabels,
+var ClientLabelNames = append(SiteLabelNames,
 	"client_mac",
 	"client_username",
 	"client_hostname",
@@ -35,12 +14,13 @@ var clientLabels = append(siteLabels,
 	"client_family",
 	"client_model",
 	"device_id",
-	"ssid",
+	"proto",
 	"radio",
+	"ssid",
 )
 
-func ClientLabels(s mistclient.Site, c mistclient.Client) []string {
-	return append(SiteLabels(s),
+func ClientLabelValues(s mistclient.Site, c mistclient.Client) []string {
+	return append(SiteLabelValues(s),
 		c.Mac,
 		c.Username,
 		c.Hostname,
@@ -49,120 +29,248 @@ func ClientLabels(s mistclient.Site, c mistclient.Client) []string {
 		c.Family,
 		c.Model,
 		c.APID,
-		c.SSID,
+		c.Proto.String(),
 		c.Band.String(),
+		c.SSID,
 	)
 }
 
-func NewClientMetrics() *ClientMetrics {
-	return &ClientMetrics{
-		LastSeen: prometheus.NewDesc(
-			"mist_client_last_seen",
-			"Client last seen time",
-			clientLabels,
-			nil,
+var clientMetrics *ClientMetrics
+
+type ClientMetrics struct {
+	channel        *prometheus.GaugeVec
+	dualBand       *prometheus.GaugeVec
+	idletime       *prometheus.GaugeVec
+	isGuest        *prometheus.GaugeVec
+	lastSeen       *prometheus.GaugeVec
+	numLocatingAPs *prometheus.GaugeVec
+	powerSaving    *prometheus.GaugeVec
+	rssi           *prometheus.GaugeVec
+	rxBps          *prometheus.GaugeVec
+	rxBytes        *prometheus.GaugeVec
+	rxPackets      *prometheus.GaugeVec
+	rxRate         *prometheus.GaugeVec
+	rxRetries      *prometheus.GaugeVec
+	snr            *prometheus.GaugeVec
+	txBps          *prometheus.GaugeVec
+	txBytes        *prometheus.GaugeVec
+	txPackets      *prometheus.GaugeVec
+	txRate         *prometheus.GaugeVec
+	txRetries      *prometheus.GaugeVec
+	uptime         *prometheus.GaugeVec
+}
+
+func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
+	m := &ClientMetrics{
+		channel: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "channel",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		Uptime: prometheus.NewDesc(
-			"mist_client_uptime",
-			"Client connected time (s)",
-			clientLabels,
-			nil,
+		dualBand: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "dual_band",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		Idletime: prometheus.NewDesc(
-			"mist_client_idletime",
-			"Client idle time (s), since the last RX packet",
-			clientLabels,
-			nil,
+		idletime: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "idletime",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		PowerSaving: prometheus.NewDesc(
-			"mist_client_power_saving",
-			"Client in power-save mode",
-			clientLabels,
-			nil,
+		isGuest: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "is_guest",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		DualBand: prometheus.NewDesc(
-			"mist_client_dual_band",
-			"Client is dual-band capable",
-			clientLabels,
-			nil,
+		lastSeen: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "last_seen",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		Channel: prometheus.NewDesc(
-			"mist_client_channel",
-			"Client's current channel",
-			clientLabels,
-			nil,
+		numLocatingAPs: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "num_locating_aps",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		RSSI: prometheus.NewDesc(
-			"mist_client_rssi",
-			"Client's received signal strength indicator (dBm)",
-			clientLabels,
-			nil,
+		powerSaving: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "power_saving",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		SNR: prometheus.NewDesc(
-			"mist_client_snr",
-			"Client's signal to noise ratio",
-			clientLabels,
-			nil,
+		rssi: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "rssi",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		TxRate: prometheus.NewDesc(
-			"mist_client_tx_rate",
-			"Transmit rate to client (Mbps)",
-			clientLabels,
-			nil,
+		rxBps: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "rx_bps",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		RxRate: prometheus.NewDesc(
-			"mist_client_rx_rate",
-			"Receive rate from client (Mbps)",
-			clientLabels,
-			nil,
+		rxBytes: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "rx_bytes",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		TxBytes: prometheus.NewDesc(
-			"mist_client_tx_bytes",
-			"Bytes transmitted to client since connect",
-			clientLabels,
-			nil,
+		rxPackets: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "rx_packets",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		RxBytes: prometheus.NewDesc(
-			"mist_client_rx_bytes",
-			"Bytes received from client since connect",
-			clientLabels,
-			nil,
+		rxRate: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "rx_rate",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		TxBps: prometheus.NewDesc(
-			"mist_client_tx_bps",
-			"Transmit rate to client (bps) last known",
-			clientLabels,
-			nil,
+		rxRetries: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "rx_retries",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		RxBps: prometheus.NewDesc(
-			"mist_client_rx_bps",
-			"Receive rate from client (bps) last known",
-			clientLabels,
-			nil,
+		snr: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "snr",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		TxPackets: prometheus.NewDesc(
-			"mist_client_tx_packets",
-			"Packets transmitted to client since connect",
-			clientLabels,
-			nil,
+		txBps: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "tx_bps",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		RxPackets: prometheus.NewDesc(
-			"mist_client_rx_packets",
-			"Packets received from client since connect",
-			clientLabels,
-			nil,
+		txBytes: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "tx_bytes",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		TxRetries: prometheus.NewDesc(
-			"mist_client_tx_retries",
-			"Number of transmit retries to client since connect",
-			clientLabels,
-			nil,
+		txPackets: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "tx_packets",
+				Help:      "",
+			}, ClientLabelNames,
 		),
-		RxRetries: prometheus.NewDesc(
-			"mist_client_rx_retries",
-			"Number of receive retries from client since connect",
-			clientLabels,
-			nil,
+		txRate: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "tx_rate",
+				Help:      "",
+			}, ClientLabelNames,
+		),
+		txRetries: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "tx_retries",
+				Help:      "",
+			}, ClientLabelNames,
+		),
+		uptime: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "mist",
+				Subsystem: "client",
+				Name:      "uptime",
+				Help:      "",
+			}, ClientLabelNames,
 		),
 	}
+
+	reg.MustRegister(
+		m.channel,
+		m.dualBand,
+		m.idletime,
+		m.isGuest,
+		m.lastSeen,
+		m.numLocatingAPs,
+		m.powerSaving,
+		m.rssi,
+		m.rxBps,
+		m.rxBytes,
+		m.rxPackets,
+		m.rxRate,
+		m.rxRetries,
+		m.snr,
+		m.txBps,
+		m.txBytes,
+		m.txPackets,
+		m.txRate,
+		m.txRetries,
+		m.uptime,
+	)
+
+	return m
+}
+
+func handleSiteClientStat(site mistclient.Site, stat mistclient.Client) {
+	labels := ClientLabelValues(site, stat)
+
+	clientMetrics.channel.WithLabelValues(labels...).Set(float64(stat.Channel))
+	clientMetrics.dualBand.WithLabelValues(labels...).Set(boolToFloat64(stat.DualBand))
+	clientMetrics.idletime.WithLabelValues(labels...).Set(float64(stat.Idletime))
+	clientMetrics.isGuest.WithLabelValues(labels...).Set(boolToFloat64(stat.IsGuest))
+	clientMetrics.lastSeen.WithLabelValues(labels...).Set(float64(stat.LastSeen.Unix()))
+	clientMetrics.numLocatingAPs.WithLabelValues(labels...).Set(float64(stat.NumLocatingAPs))
+	clientMetrics.powerSaving.WithLabelValues(labels...).Set(boolToFloat64(stat.PowerSaving))
+	clientMetrics.rssi.WithLabelValues(labels...).Set(float64(stat.RSSI))
+	clientMetrics.rxBps.WithLabelValues(labels...).Set(float64(stat.RxBps))
+	clientMetrics.rxBytes.WithLabelValues(labels...).Set(float64(stat.RxBytes))
+	clientMetrics.rxPackets.WithLabelValues(labels...).Set(float64(stat.RxPackets))
+	clientMetrics.rxRate.WithLabelValues(labels...).Set(float64(stat.RxRate))
+	clientMetrics.rxRetries.WithLabelValues(labels...).Set(float64(stat.RxRetries))
+	clientMetrics.snr.WithLabelValues(labels...).Set(float64(stat.SNR))
+	clientMetrics.txBps.WithLabelValues(labels...).Set(float64(stat.TxBps))
+	clientMetrics.txBytes.WithLabelValues(labels...).Set(float64(stat.TxBytes))
+	clientMetrics.txPackets.WithLabelValues(labels...).Set(float64(stat.TxPackets))
+	clientMetrics.txRate.WithLabelValues(labels...).Set(float64(stat.TxRate))
+	clientMetrics.txRetries.WithLabelValues(labels...).Set(float64(stat.TxRetries))
+	clientMetrics.uptime.WithLabelValues(labels...).Set(float64(stat.Uptime))
 }

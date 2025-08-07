@@ -19,7 +19,8 @@ exporter:
   address: "127.0.0.1"
   port: 9999
 collector:
-  timeout: 25s
+  collect_timeout: 25s
+  site_refresh_interval: 5m
 `
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
@@ -51,8 +52,11 @@ collector:
 	if cfg.Exporter.Port != 9999 {
 		t.Errorf("expected Port to be 9999, got %d", cfg.Exporter.Port)
 	}
-	if cfg.Collector.Timeout != 25*time.Second {
-		t.Errorf("expected Collector.Timeout to be 25s, got %v", cfg.Collector.Timeout)
+	if cfg.Collector.CollectTimeout != 25*time.Second {
+		t.Errorf("expected Collector.Timeout to be 25s, got %v", cfg.Collector.CollectTimeout)
+	}
+	if cfg.Collector.SiteRefreshInterval != 5*time.Minute {
+		t.Errorf("expected Collector.SiteRefreshInterval to be 5m, got %v", cfg.Collector.SiteRefreshInterval)
 	}
 }
 
@@ -111,8 +115,11 @@ mist_api:
 	if cfg.Exporter.Port != defaultExporterPort {
 		t.Errorf("expected default Port to be %d, got %d", defaultExporterPort, cfg.Exporter.Port)
 	}
-	if cfg.Collector.Timeout != defaultCollectTimeout {
-		t.Errorf("expected default Collector.Timeout to be %v, got %v", defaultCollectTimeout, cfg.Collector.Timeout)
+	if cfg.Collector.CollectTimeout != defaultCollectTimeout {
+		t.Errorf("expected default Collector.Timeout to be %v, got %v", defaultCollectTimeout, cfg.Collector.CollectTimeout)
+	}
+	if cfg.Collector.SiteRefreshInterval != defaultSiteRefreshInterval {
+		t.Errorf("expected default Collector.SiteRefreshInterval to be %v, got %v", defaultSiteRefreshInterval, cfg.Collector.SiteRefreshInterval)
 	}
 }
 

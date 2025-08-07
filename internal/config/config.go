@@ -10,28 +10,28 @@ import (
 )
 
 const (
-	defaultAPIURL          string        = "https://api.mist.com"
-	defaultExporterAddress string        = "0.0.0.0"
-	defaultExporterPort    int           = 9200
-	defaultCollectTimeout  time.Duration = 30 * time.Second
-	defaultCollectWorkers  int           = 10
+	defaultAPIURL              string        = "https://api.mist.com"
+	defaultExporterAddress     string        = "0.0.0.0"
+	defaultExporterPort        int           = 9200
+	defaultCollectTimeout      time.Duration = 30 * time.Second
+	defaultSiteRefreshInterval time.Duration = 1 * time.Minute
 )
 
 type Config struct {
-	OrgId      string             `yaml:"org_id"`
-	MistClient *mistclient.Config `yaml:"mist_api"`
-	Exporter   *Exporter          `yaml:"exporter"`
-	Collector  *Collector         `yaml:"collector"`
+	OrgId      string             `yaml:"org_id,omitempty"`
+	MistClient *mistclient.Config `yaml:"mist_api,omitempty"`
+	Exporter   *Exporter          `yaml:"exporter,omitempty"`
+	Collector  *Collector         `yaml:"collector,omitempty"`
 }
 
 type Exporter struct {
-	Address string `yaml:"address"`
-	Port    int    `yaml:"port"`
+	Address string `yaml:"address,omitempty"`
+	Port    int    `yaml:"port,omitempty"`
 }
 
 type Collector struct {
-	Timeout time.Duration `yaml:"timeout"`
-	Workers int           `yaml:"workers"`
+	CollectTimeout      time.Duration `yaml:"collect_timeout,omitempty"`
+	SiteRefreshInterval time.Duration `yaml:"site_refresh_interval,omitempty"`
 }
 
 // loadConfig loads and processes the YAML configuration with environment variable substitution
@@ -63,8 +63,8 @@ func newDefaultConfig() *Config {
 			Port:    defaultExporterPort,
 		},
 		Collector: &Collector{
-			Timeout: defaultCollectTimeout,
-			Workers: defaultCollectWorkers,
+			CollectTimeout:      defaultCollectTimeout,
+			SiteRefreshInterval: defaultSiteRefreshInterval,
 		},
 	}
 }

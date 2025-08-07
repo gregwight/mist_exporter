@@ -26,7 +26,7 @@ exporter:
 
 collector:
   # Collector timeout
-  #timeout: 30s
+  #collect_timeout: 30s
 
-  # Collector concurrency
-  #workers: 10
+  # Site refresh interval
+  #site_refresh_interval: 1m
