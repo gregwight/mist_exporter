@@ -8,73 +8,73 @@ import (
 var (
 	latDesc = prometheus.NewDesc(
 		"mist_site_lat",
-		"",
+		"Site latitude",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	lngDesc = prometheus.NewDesc(
 		"mist_site_lng",
-		"",
+		"Site longitude",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	modifiedTimeDesc = prometheus.NewDesc(
 		"mist_site_modified_time",
-		"",
+		"Site last modified time",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numAPDesc = prometheus.NewDesc(
 		"mist_site_num_ap",
-		"",
+		"Number of APs in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numAPConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_ap_connected",
-		"",
+		"Number of connected APs in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numClientsDesc = prometheus.NewDesc(
 		"mist_site_num_clients",
-		"",
+		"Number of clients in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numDevicesDesc = prometheus.NewDesc(
 		"mist_site_num_devices",
-		"",
+		"Number of devices in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numDevicesConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_devices_connected",
-		"",
+		"Number of connected devices in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numGatewayDesc = prometheus.NewDesc(
 		"mist_site_num_gateway",
-		"",
+		"Number of gateways in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numGatewayConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_gateway_connected",
-		"",
+		"Number of connected gateways in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numSwitchDesc = prometheus.NewDesc(
 		"mist_site_num_switch",
-		"",
+		"Number of switches in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)
 	numSwitchConnectedDesc = prometheus.NewDesc(
 		"mist_site_num_switch_connected",
-		"",
+		"Number of connected switches in the site",
 		metrics.SiteLabelNames,
 		nil,
 	)

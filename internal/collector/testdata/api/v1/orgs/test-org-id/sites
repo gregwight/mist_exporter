@@ -1,0 +1,24 @@
+[
+  {
+    "id": "test-site-id-1",
+    "org_id": "test-org-id",
+    "name": "Test Site 1",
+    "country_code": "US",
+    "latlng": { "lat": 37.7749, "lng": -122.4194 },
+    "address": "123 Main St",
+    "timezone": "America/Los_Angeles",
+    "created_time": 1609459200,
+    "modified_time": 1609459200
+  },
+  {
+    "id": "test-site-id-2",
+    "org_id": "test-org-id",
+    "name": "Test Site 2",
+    "country_code": "CA",
+    "latlng": { "lat": 45.4215, "lng": -75.6972 },
+    "address": "456 Other St",
+    "timezone": "America/Toronto",
+    "created_time": 1609459300,
+    "modified_time": 1609459300
+  }
+]

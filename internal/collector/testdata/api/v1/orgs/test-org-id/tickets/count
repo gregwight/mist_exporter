@@ -1,0 +1,12 @@
+{
+  "results": [
+    {
+      "status": "open",
+      "count": 5
+    },
+    {
+      "status": "closed",
+      "count": 10
+    }
+  ]
+}

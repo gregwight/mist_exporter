@@ -1,0 +1,15 @@
+{
+  "id": "test-site-id-1",
+  "lat": 37.7749,
+  "lng": -122.4194,
+  "modified_time": 1609459200,
+  "num_ap": 10,
+  "num_ap_connected": 9,
+  "num_clients": 100,
+  "num_devices": 15,
+  "num_devices_connected": 14,
+  "num_gateway": 1,
+  "num_gateway_connected": 1,
+  "num_switch": 2,
+  "num_switch_connected": 2
+}

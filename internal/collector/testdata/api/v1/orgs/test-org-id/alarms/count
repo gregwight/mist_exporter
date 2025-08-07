@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "type": "AP_DISCONNECTED",
+      "count": 1
+    },
+    {
+      "type": "SWITCH_DISCONNECTED",
+      "count": 2
+    },
+    {
+      "type": "GATEWAY_DISCONNECTED",
+      "count": 0
+    }
+  ]
+}
