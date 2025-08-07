@@ -43,7 +43,7 @@ func New(config *config.Collector, client *mistclient.APIClient, orgID string, r
 
 func (c *MistMetrics) Run(ctx context.Context) error {
 	wg := &sync.WaitGroup{}
-	if err := c.manageSites(ctx, wg); err != nil {
+	if err := c.manageSiteStreams(ctx, wg); err != nil {
 		return fmt.Errorf("unable to initialize site metric streams: %w", err)
 	}
 
@@ -59,7 +59,7 @@ func (c *MistMetrics) Run(ctx context.Context) error {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				if err := c.manageSites(ctx, wg); err != nil {
+				if err := c.manageSiteStreams(ctx, wg); err != nil {
 					c.logger.Error("unable to refresh site metric streams", "error", err)
 				}
 			}
@@ -71,44 +71,40 @@ func (c *MistMetrics) Run(ctx context.Context) error {
 	return nil
 }
 
-func (c *MistMetrics) manageSites(ctx context.Context, wg *sync.WaitGroup) error {
+func (c *MistMetrics) manageSiteStreams(ctx context.Context, wg *sync.WaitGroup) error {
 	c.logger.Debug("running site metric stream manager...")
 	defer c.logger.Debug("site metric stream manager finished")
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	// Get sites for the organization
 	sites, err := c.client.GetOrgSites(c.orgID)
 	if err != nil {
 		return fmt.Errorf("unable to fetch site list: %w", err)
 	}
 
-	// Ensure all valid sites have active metrics streams
+	activeSites := make(map[string]struct{})
 	for _, site := range sites {
-		if streamer, ok := c.sites[site.ID]; !ok {
+		activeSites[site.ID] = struct{}{}
+		streamer, ok := c.sites[site.ID]
+		if !ok {
 			streamer = newStreamCollector(c.client, site, c.logger)
 			c.sites[site.ID] = streamer
+		}
+
+		streamer.mu.RLock()
+		if !streamer.running {
 			wg.Add(1)
 			go streamer.run(ctx, wg)
-		} else {
-			if !streamer.running {
-				wg.Add(1)
-				go streamer.run(ctx, wg)
-			}
 		}
+		streamer.mu.RUnlock()
 	}
 
-	// Remove streams for any missing sites
-streamLoop:
 	for siteID, streamer := range c.sites {
-		for _, site := range sites {
-			if site.ID == siteID {
-				continue streamLoop
-			}
+		if _, ok := activeSites[siteID]; !ok {
+			streamer.stop()
+			delete(c.sites, siteID)
 		}
-		streamer.cancel()
-		delete(c.sites, siteID)
 	}
 
 	return nil
@@ -119,11 +115,22 @@ func (c *MistMetrics) Ready() <-chan struct{} {
 }
 
 type StreamCollector struct {
-	client  *mistclient.APIClient
-	site    mistclient.Site
+	client *mistclient.APIClient
+	site   mistclient.Site
+	logger *slog.Logger
+
+	mu      sync.RWMutex
 	running bool
 	cancel  context.CancelFunc
-	logger  *slog.Logger
+}
+
+func (c *StreamCollector) stop() {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	if c.cancel != nil {
+		c.cancel()
+	}
 }
 
 func newStreamCollector(client *mistclient.APIClient, site mistclient.Site, logger *slog.Logger) *StreamCollector {
@@ -135,26 +142,33 @@ func newStreamCollector(client *mistclient.APIClient, site mistclient.Site, logg
 }
 
 func (c *StreamCollector) run(ctx context.Context, wg *sync.WaitGroup) {
+	runCtx, cancel := context.WithCancel(ctx)
+
+	c.mu.Lock()
+	c.running = true
+	c.cancel = cancel
+	c.mu.Unlock()
+
 	c.logger.Info("starting site metrics stream...")
 	defer func() {
-		c.cancel()
+		cancel()
+		c.mu.Lock()
 		c.running = false
+		c.cancel = nil
+		c.mu.Unlock()
+
 		c.logger.Info("site metrics stream stopped")
 		wg.Done()
 	}()
 
-	ctx, cancel := context.WithCancel(ctx)
-	c.cancel = cancel
-	c.running = true
-
-	deviceStats, err := c.client.StreamSiteDeviceStats(ctx, c.site.ID)
+	deviceStats, err := c.client.StreamSiteDeviceStats(runCtx, c.site.ID)
 	if err != nil {
 		c.logger.Error("unable to start site device stats stream", "error", err)
 		return
 	}
 	c.logger.Debug("site device stats stream started")
 
-	clientStats, err := c.client.StreamSiteClientStats(ctx, c.site.ID)
+	clientStats, err := c.client.StreamSiteClientStats(runCtx, c.site.ID)
 	if err != nil {
 		c.logger.Error("unable to start site client stats stream", "error", err)
 		return
@@ -169,7 +183,7 @@ func (c *StreamCollector) run(ctx context.Context, wg *sync.WaitGroup) {
 	hwg.Add(1)
 	go func() {
 		defer hwg.Done()
-		defer c.cancel()
+		defer cancel()
 
 		for stat := range deviceStats {
 			handleSiteDeviceStat(c.site, stat)
@@ -179,7 +193,7 @@ func (c *StreamCollector) run(ctx context.Context, wg *sync.WaitGroup) {
 	hwg.Add(1)
 	go func() {
 		defer hwg.Done()
-		defer c.cancel()
+		defer cancel()
 
 		for stat := range clientStats {
 			handleSiteClientStat(c.site, stat)
