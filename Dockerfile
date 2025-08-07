@@ -13,12 +13,12 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o mist_exporter ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o mistexporter ./cmd/main.go
 
 # --- Final Stage ---
 FROM alpine:latest
 WORKDIR /app
-COPY --from=builder /app/mist_exporter .
+COPY --from=builder /app/mistexporter .
 COPY config.yaml.dist ./config.yaml
 EXPOSE 9200
-CMD ["./mist_exporter", "--config", "config.yaml"]
+CMD ["./mistexporter", "--config", "config.yaml"]

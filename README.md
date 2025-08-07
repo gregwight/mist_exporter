@@ -1,6 +1,6 @@
 # Mist Prometheus Exporter
 
-[![Build Status](https://github.com/gregwight/mist_exporter/actions/workflows/release.yml/badge.svg)](https://github.com/gregwight/mist_exporter/actions/workflows/release.yml)
+[![Build Status](https://github.com/gregwight/mistexporter/actions/workflows/release.yml/badge.svg)](https://github.com/gregwight/mistexporter/actions/workflows/release.yml)
 
 A Prometheus exporter for Juniper Mist API metrics.
 
@@ -82,7 +82,7 @@ A Docker image can be used to run the exporter.
 
 ```sh
 docker run -d \
-  --name mist_exporter \
+  --name mistexporter \
   -p 9200:9200 \
   -v $(pwd)/config.yaml:/app/config.yaml \
   <your-docker-image-name>:latest
@@ -92,16 +92,16 @@ docker run -d \
 
 1.  Clone the repository:
     ```sh
-    git clone https://github.com/gregwight/mist_exporter.git
-    cd mist_exporter
+    git clone https://github.com/gregwight/mistexporter.git
+    cd mistexporter
     ```
 2.  Build the binary:
     ```sh
-    go build -o mist_exporter ./cmd/main.go
+    go build -o mistexporter ./cmd/main.go
     ```
 3.  Run the exporter:
     ```sh
-    ./mist_exporter --config config.yaml
+    ./mistexporter --config config.yaml
     ```
 
 ### Running from a Pre-built Binary
@@ -118,14 +118,14 @@ VERSION="<latest_version>"
 ARCH="amd64" # or arm64
 
 # Download and extract the release archive
-curl -sSL https://github.com/gregwight/mist_exporter/releases/download/${VERSION}/mist_exporter-${VERSION}-linux-${ARCH}.tar.gz | tar -xz
+curl -sSL https://github.com/gregwight/mistexporter/releases/download/${VERSION}/mistexporter-${VERSION}-linux-${ARCH}.tar.gz | tar -xz
 
 # Copy the example config and edit it with your API key and org ID
 cp config.yaml.dist config.yaml
 vim config.yaml # Or your favorite editor
 
 # Run the exporter
-./mist_exporter --config config.yaml
+./mistexporter --config config.yaml
 ```
 
 ### Running as a systemd Service (Linux)
@@ -136,21 +136,21 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
     Follow the steps in "Running from a Pre-built Binary" to download and extract the exporter. Then, move the files to standard locations.
 
     ```sh
-    sudo mv mist_exporter /usr/local/bin/
-    sudo mkdir -p /etc/mist_exporter
-    sudo mv config.yaml /etc/mist_exporter/
-    sudo chmod +x /usr/local/bin/mist_exporter
+    sudo mv mistexporter /usr/local/bin/
+    sudo mkdir -p /etc/mistexporter
+    sudo mv config.yaml /etc/mistexporter/
+    sudo chmod +x /usr/local/bin/mistexporter
     ```
 
 2.  **Create a dedicated user (Recommended):**
     It is a security best practice to run services as a non-root user.
     ```sh
     sudo useradd --no-create-home --shell /bin/false prometheus
-    sudo chown -R prometheus:prometheus /etc/mist_exporter
+    sudo chown -R prometheus:prometheus /etc/mistexporter
     ```
 
 3.  **Create the systemd unit file:**
-    Create a file at `/etc/systemd/system/mist_exporter.service` with the following content:
+    Create a file at `/etc/systemd/system/mistexporter.service` with the following content:
 
     ```ini
     [Unit]
@@ -162,7 +162,7 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
     User=prometheus
     Group=prometheus
     Type=simple
-    ExecStart=/usr/local/bin/mist_exporter --config /etc/mist_exporter/config.yaml
+    ExecStart=/usr/local/bin/mistexporter --config /etc/mistexporter/config.yaml
     Restart=on-failure
 
     [Install]
@@ -175,13 +175,13 @@ To run the Mist exporter as a long-running service on a Linux system with `syste
     sudo systemctl daemon-reload
 
     # Enable the service to start on boot
-    sudo systemctl enable mist_exporter.service
+    sudo systemctl enable mistexporter.service
 
     # Start the service now
-    sudo systemctl start mist_exporter.service
+    sudo systemctl start mistexporter.service
 
     # Check the status
-    sudo systemctl status mist_exporter.service
+    sudo systemctl status mistexporter.service
     ```
 
 ## Exposed Metrics
