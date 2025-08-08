@@ -15,7 +15,12 @@ import (
 //go:embed index.html
 var indexHTML []byte
 
+// New creates a new HTTP server for the main exporter API.
 func New(cfg *config.Config, reg *prometheus.Registry) (*http.Server, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("config cannot be nil")
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
 	mux.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{

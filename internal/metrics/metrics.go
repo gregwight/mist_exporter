@@ -8,37 +8,43 @@ import (
 	"time"
 
 	"github.com/gregwight/mistclient"
-	"github.com/gregwight/mistexporter/internal/config"
+	"github.com/gregwight/mistexporter/internal/filter"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// MistMetrics
+// MistMetrics is coordinates the collection of both streamed and on-demand metrics.
 type MistMetrics struct {
-	config *config.Collector
-	client *mistclient.APIClient
-	orgID  string
-	ready  chan struct{}
-	reg    *prometheus.Registry
-	logger *slog.Logger
+	client              *mistclient.APIClient
+	orgID               string
+	filter              *filter.Filter
+	siteRefreshInterval time.Duration
+	ready               chan struct{}
+	reg                 *prometheus.Registry
+	logger              *slog.Logger
 
 	mu    sync.RWMutex
 	sites map[string]*StreamCollector
 }
 
-// New creates a new MistMetrics
-func New(config *config.Collector, client *mistclient.APIClient, orgID string, reg *prometheus.Registry, logger *slog.Logger) *MistMetrics {
+// New creates a new MistMetrics.
+func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, siteRefreshInterval time.Duration, reg *prometheus.Registry, logger *slog.Logger) (*MistMetrics, error) {
+	if client == nil {
+		return nil, fmt.Errorf("client cannot be nil")
+	}
+
 	deviceMetrics = newDeviceMetrics(reg)
 	clientMetrics = newClientMetrics(reg)
 
 	return &MistMetrics{
-		config: config,
-		client: client,
-		orgID:  orgID,
-		ready:  make(chan struct{}),
-		reg:    reg,
-		logger: logger.With(slog.String("component", "metrics")),
-		sites:  make(map[string]*StreamCollector),
-	}
+		client:              client,
+		orgID:               orgID,
+		filter:              siteFilter,
+		siteRefreshInterval: siteRefreshInterval,
+		ready:               make(chan struct{}),
+		reg:                 reg,
+		logger:              logger.With(slog.String("component", "metrics")),
+		sites:               make(map[string]*StreamCollector),
+	}, nil
 }
 
 func (c *MistMetrics) Run(ctx context.Context) error {
@@ -51,7 +57,7 @@ func (c *MistMetrics) Run(ctx context.Context) error {
 	go func() {
 		defer wg.Done()
 
-		ticker := time.NewTicker(c.config.SiteRefreshInterval)
+		ticker := time.NewTicker(c.siteRefreshInterval)
 		defer ticker.Stop()
 
 		for {
@@ -85,6 +91,13 @@ func (c *MistMetrics) manageSiteStreams(ctx context.Context, wg *sync.WaitGroup)
 
 	activeSites := make(map[string]struct{})
 	for _, site := range sites {
+		if isFiltered, err := c.filter.IsFiltered(site); err != nil {
+			c.logger.Error("unable to apply site filter to site", "site", site.Name, "error", err)
+			continue
+		} else if isFiltered {
+			continue
+		}
+
 		activeSites[site.ID] = struct{}{}
 		streamer, ok := c.sites[site.ID]
 		if !ok {
@@ -114,6 +127,7 @@ func (c *MistMetrics) Ready() <-chan struct{} {
 	return c.ready
 }
 
+// StreamCollector coordinates the collection of metrics from a set of websocket streams.
 type StreamCollector struct {
 	client *mistclient.APIClient
 	site   mistclient.Site

@@ -2,6 +2,7 @@ package metrics
 
 import "github.com/gregwight/mistclient"
 
+// SiteLabelNames defines the labels attached site metrics.
 var SiteLabelNames = []string{
 	"site_id",
 	"site_name",
@@ -9,6 +10,7 @@ var SiteLabelNames = []string{
 	"timezone",
 }
 
+// SiteLabelValues generates label values for site metrics.
 func SiteLabelValues(s mistclient.Site) []string {
 	return []string{
 		s.ID,

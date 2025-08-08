@@ -5,13 +5,13 @@ import "github.com/prometheus/client_golang/prometheus"
 var (
 	alarmsDesc = prometheus.NewDesc(
 		"mist_org_alarms",
-		"Number of alarms in the organization",
+		"Total number of unresolved alarms in the organization.",
 		[]string{"alarm_type"},
 		nil,
 	)
 	ticketsDesc = prometheus.NewDesc(
 		"mist_org_tickets",
-		"Number of tickets in the organization",
+		"Total number of tickets in the organization by status.",
 		[]string{"ticket_status"},
 		nil,
 	)

@@ -12,11 +12,12 @@ import (
 const (
 	defaultAPIURL              string        = "https://api.mist.com"
 	defaultExporterAddress     string        = "0.0.0.0"
-	defaultExporterPort        int           = 9200
+	defaultExporterPort        int           = 10038
 	defaultCollectTimeout      time.Duration = 30 * time.Second
 	defaultSiteRefreshInterval time.Duration = 1 * time.Minute
 )
 
+// Config holds the top-level exporter configuration.
 type Config struct {
 	OrgId      string             `yaml:"org_id,omitempty"`
 	MistClient *mistclient.Config `yaml:"mist_api,omitempty"`
@@ -24,17 +25,26 @@ type Config struct {
 	Collector  *Collector         `yaml:"collector,omitempty"`
 }
 
+// Exporter holds configurtion relevant to exporter's HTTP server.
 type Exporter struct {
 	Address string `yaml:"address,omitempty"`
 	Port    int    `yaml:"port,omitempty"`
 }
 
+// Collector holds configuration relevant to metrics collection.
 type Collector struct {
 	CollectTimeout      time.Duration `yaml:"collect_timeout,omitempty"`
 	SiteRefreshInterval time.Duration `yaml:"site_refresh_interval,omitempty"`
+	SiteFilter          *SiteFilter   `yaml:"site_filter,omitempty"`
 }
 
-// loadConfig loads and processes the YAML configuration with environment variable substitution
+// SiteFilter defines rules for including or excluding sites from collection.
+type SiteFilter struct {
+	Include []string `yaml:"include,omitempty"`
+	Exclude []string `yaml:"exclude,omitempty"`
+}
+
+// LoadConfig loads and processes the YAML configuration with environment variable substitution.
 func LoadConfig(configPath string) (*Config, error) {
 	data, err := os.ReadFile(configPath)
 	if err != nil {

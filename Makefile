@@ -1,4 +1,4 @@
-NAME=mist_exporter
+NAME=mistexporter
 VERSION=$(shell cat VERSION)
 
 PWD=$(shell pwd)
