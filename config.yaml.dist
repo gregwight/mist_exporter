@@ -22,7 +22,7 @@ exporter:
   #address: 0.0.0.0
   
   # Exporter port
-  #port: 9200
+  #port: 10038
 
 collector:
   # Collector timeout

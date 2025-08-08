@@ -20,5 +20,5 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/mistexporter .
 COPY config.yaml.dist ./config.yaml
-EXPOSE 9200
+EXPOSE 10038
 CMD ["./mistexporter", "--config", "config.yaml"]

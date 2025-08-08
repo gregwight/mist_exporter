@@ -62,7 +62,7 @@ exporter:
   address: 0.0.0.0
   
   # Port on which to expose the /metrics endpoint.
-  port: 9200
+  port: 10038
 
 collector:
   # Timeout for the REST API portion of a Prometheus scrape. This should be
@@ -96,7 +96,7 @@ A Docker image can be used to run the exporter.
 ```sh
 docker run -d \
   --name mistexporter \
-  -p 9200:9200 \
+  -p 10038:10038 \
   -v $(pwd)/config.yaml:/app/config.yaml \
   <your-docker-image-name>:latest
 ```

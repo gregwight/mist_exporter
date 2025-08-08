@@ -12,7 +12,7 @@ import (
 const (
 	defaultAPIURL              string        = "https://api.mist.com"
 	defaultExporterAddress     string        = "0.0.0.0"
-	defaultExporterPort        int           = 9200
+	defaultExporterPort        int           = 10038
 	defaultCollectTimeout      time.Duration = 30 * time.Second
 	defaultSiteRefreshInterval time.Duration = 1 * time.Minute
 )
