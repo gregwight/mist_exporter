@@ -25,7 +25,8 @@ import (
 
 func main() {
 	configFile := flag.String("config", "config.yaml", "Path to the configuration file")
-	debug := flag.Bool("debug", false, "Enable debug mode")
+	debug := flag.Bool("debug", false, "Enable debug logging")
+	trace := flag.Bool("trace", false, "Enable trace logging")
 	version.AddVersionFlag()
 	flag.Parse()
 
@@ -39,11 +40,17 @@ func main() {
 	defer cancel()
 
 	// Initialize logger
-	loggerOpts := &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}
-	if *debug {
-		loggerOpts.Level = slog.LevelDebug
+	var loggerOpts *slog.HandlerOptions
+	if *trace {
+		loggerOpts = mistclient.NewTraceHandlerOptions()
+	} else {
+		loggerOpts := &slog.HandlerOptions{
+			Level:     slog.LevelInfo,
+			AddSource: true,
+		}
+		if *debug {
+			loggerOpts.Level = slog.LevelDebug
+		}
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, loggerOpts))
 
