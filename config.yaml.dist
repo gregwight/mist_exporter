@@ -33,5 +33,5 @@ collector:
 
   # Site filter
   #site_filter:
-  #  - include: []
-  #  - exclude: []
+  #  include: []
+  #  exclude: []
