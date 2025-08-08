@@ -205,13 +205,27 @@ The exporter exposes the following metrics at the `/metrics` endpoint.
 
 These metrics are fetched from the Mist REST API each time Prometheus scrapes the exporter. They are suitable for data that changes infrequently.
 
-#### Organization & Site Metrics
+#### Organization Metrics
 | Metric | Description | Type |
 |---|---|---|
-| `mist_org_alarms_total` | The total number of alarms in the organization. | Counter |
-| `mist_org_tickets_total`| The total number of tickets in the organization. | Counter |
-| `mist_org_sites_total` | The total number of sites in the organization. | Gauge |
-| `mist_site_info` | Information about a Mist site. | Gauge |
+| `mist_org_alarms` | The total number of alarms in the organization. | Counter |
+| `mist_org_tickets`| The total number of tickets in the organization. | Counter |
+
+#### Site Metrics
+| Metric | Description | Type |
+|---|---|---|
+| `mist_site_lat` | Geographic latitude of the site. | Gauge |
+| `mist_site_lon` | Geographic longitude of the site. | Gauge |
+| `mist_site_modified_time` | The last time site was modified, as a Unix timestamp. | Gauge |
+| `mist_site_num_ap` | Total number of APs configured for the site. | Gauge |
+| `mist_site_num_ap_connected` | Number of APs currently online at the site. | Gauge |
+| `mist_site_num_clients` | Total number of clients currently connected to the site. | Gauge |
+| `mist_site_num_devices` | Total number of Mist devices (APs, switches, gateways) at the site. | Gauge |
+| `mist_site_num_devices_connected` | Number of Mist devices (APs, switches, gateways) currently online at the site. | Gauge |
+| `mist_site_num_gateway` | Total number of gateways configured for the site. | Gauge |
+| `mist_site_num_gateway_connected` | Number of gateways currently online at the site. | Gauge |
+| `mist_site_num_switch` | Total number of switches configured for the site. | Gauge |
+| `mist_site_num_switch_connected` | Number of switches currently online at the site. | Gauge |
 
 ### Streamed Metrics (Real-Time)
 
