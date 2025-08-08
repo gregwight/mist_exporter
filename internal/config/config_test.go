@@ -21,6 +21,9 @@ exporter:
 collector:
   collect_timeout: 25s
   site_refresh_interval: 5m
+  site_filter:
+    include: ["Main Office-*"]
+    exclude: ["Main Office-Guest"]
 `
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
@@ -57,6 +60,15 @@ collector:
 	}
 	if cfg.Collector.SiteRefreshInterval != 5*time.Minute {
 		t.Errorf("expected Collector.SiteRefreshInterval to be 5m, got %v", cfg.Collector.SiteRefreshInterval)
+	}
+	if cfg.Collector.SiteFilter == nil {
+		t.Fatal("expected SiteFilter to be loaded, but it was nil")
+	}
+	if len(cfg.Collector.SiteFilter.Include) != 1 || cfg.Collector.SiteFilter.Include[0] != "Main Office-*" {
+		t.Errorf("unexpected SiteFilter.Include: got %v", cfg.Collector.SiteFilter.Include)
+	}
+	if len(cfg.Collector.SiteFilter.Exclude) != 1 || cfg.Collector.SiteFilter.Exclude[0] != "Main Office-Guest" {
+		t.Errorf("unexpected SiteFilter.Exclude: got %v", cfg.Collector.SiteFilter.Exclude)
 	}
 }
 

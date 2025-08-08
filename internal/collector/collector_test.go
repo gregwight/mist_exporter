@@ -11,6 +11,8 @@ import (
 	"testing"
 
 	"github.com/gregwight/mistclient"
+	"github.com/gregwight/mistexporter/internal/config"
+	"github.com/gregwight/mistexporter/internal/filter"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
@@ -41,8 +43,12 @@ func testAPIServerHandler(t *testing.T, dataDir string) http.HandlerFunc {
 }
 
 func TestNew(t *testing.T) {
+	f, err := filter.New(nil)
+	if err != nil {
+		t.Fatalf("filter.New failed: %v", err)
+	}
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c := New(nil, "test-org", logger)
+	c := New(nil, "test-org", f, logger)
 
 	if c == nil {
 		t.Fatal("New() returned a nil collector")
@@ -58,18 +64,21 @@ func TestNew(t *testing.T) {
 func TestCollect(t *testing.T) {
 	testCases := []struct {
 		name         string
+		filterCfg    *config.SiteFilter
 		handler      http.HandlerFunc
 		expectedFile string
 		lint         bool
 	}{
 		{
 			name:         "success",
+			filterCfg:    nil,
 			handler:      testAPIServerHandler(t, "testdata"),
 			expectedFile: "testdata/success.prom",
 			lint:         true,
 		},
 		{
-			name: "api error on org endpoints",
+			name:      "api error on org endpoints",
+			filterCfg: nil,
 			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if strings.HasPrefix(r.URL.Path, "/api/v1/orgs/") {
 					http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -80,7 +89,8 @@ func TestCollect(t *testing.T) {
 			expectedFile: "testdata/org_error.prom",
 		},
 		{
-			name: "api error on site stats",
+			name:      "api error on site stats",
+			filterCfg: nil,
 			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if strings.HasPrefix(r.URL.Path, "/api/v1/sites/") && strings.HasSuffix(r.URL.Path, "/stats") {
 					http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -89,6 +99,12 @@ func TestCollect(t *testing.T) {
 				testAPIServerHandler(t, "testdata")(w, r)
 			}),
 			expectedFile: "testdata/site_stats_error.prom",
+		},
+		{
+			name:         "with site filter",
+			filterCfg:    &config.SiteFilter{Include: []string{"Test Site 1"}},
+			handler:      testAPIServerHandler(t, "testdata"),
+			expectedFile: "testdata/filtered.prom",
 		},
 	}
 
@@ -104,8 +120,13 @@ func TestCollect(t *testing.T) {
 			// before the next test case starts.
 			t.Cleanup(server.Close)
 
+			siteFilter, err := filter.New(tc.filterCfg)
+			if err != nil {
+				t.Fatalf("filter.New failed: %v", err)
+			}
+
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-			collector := New(client, "test-org-id", logger)
+			collector := New(client, "test-org-id", siteFilter, logger)
 
 			expected, err := os.Open(tc.expectedFile)
 			if err != nil {

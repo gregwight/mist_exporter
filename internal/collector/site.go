@@ -90,6 +90,13 @@ func (c *MistCollector) collectSiteStats(ch chan<- prometheus.Metric) {
 	}
 
 	for _, site := range sites {
+		if isFiltered, err := c.filter.IsFiltered(site); err != nil {
+			c.logger.Error("unable to apply site filter to site", "site", site.Name, "error", err)
+			continue
+		} else if isFiltered {
+			continue
+		}
+
 		c.wg.Add(1)
 		go func() {
 			defer c.wg.Done()

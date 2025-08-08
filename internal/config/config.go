@@ -32,6 +32,13 @@ type Exporter struct {
 type Collector struct {
 	CollectTimeout      time.Duration `yaml:"collect_timeout,omitempty"`
 	SiteRefreshInterval time.Duration `yaml:"site_refresh_interval,omitempty"`
+	SiteFilter          *SiteFilter   `yaml:"site_filter,omitempty"`
+}
+
+// SiteFilter defines rules for including or excluding sites from collection.
+type SiteFilter struct {
+	Include []string `yaml:"include,omitempty"`
+	Exclude []string `yaml:"exclude,omitempty"`
 }
 
 // loadConfig loads and processes the YAML configuration with environment variable substitution

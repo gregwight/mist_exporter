@@ -71,6 +71,19 @@ collector:
 
   # How often to check for new or removed sites in the organization.
   site_refresh_interval: 1m
+
+  # Optional: Filter which sites to collect metrics from.
+  # The filter will match site names using glob patterns and is case-sensitive.
+  # 'include' sites with names matching the glob patterns, exlude all others.
+  # 'exclude' sites with names matching the glob patterns, include all others.
+  # If a site matches both include and exclude, it will be excluded.
+  # See [here](https://pkg.go.dev/path/filepath#Match) for an explanation of the supported pattern syntax.
+  site_filter:
+    include: 
+      - "US-*"
+      - "EU-*"
+    exclude: 
+      - "*-Test"
 ```
 
 ### Running with Docker

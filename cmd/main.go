@@ -14,6 +14,7 @@ import (
 	"github.com/gregwight/mistclient"
 	"github.com/gregwight/mistexporter/internal/collector"
 	"github.com/gregwight/mistexporter/internal/config"
+	"github.com/gregwight/mistexporter/internal/filter"
 	"github.com/gregwight/mistexporter/internal/metrics"
 	"github.com/gregwight/mistexporter/internal/server"
 	"github.com/gregwight/mistexporter/internal/version"
@@ -60,6 +61,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize site filter
+	siteFilter, err := filter.New(cfg.Collector.SiteFilter)
+	if err != nil {
+		logger.Error("unable to initialize site filter", "error", err)
+		os.Exit(1)
+	}
+
 	// Determine Mist OrgID
 	orgID, err := autoOrgID(cfg, client)
 	if err != nil {
@@ -75,13 +83,13 @@ func main() {
 	reg.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
 
 	// Add the scrape-time collector
-	reg.MustRegister(collector.New(client, orgID, logger))
+	reg.MustRegister(collector.New(client, orgID, siteFilter, logger))
 
 	// Use errgroup for managing goroutines
 	eg, ctx := errgroup.WithContext(ctx)
 
 	// Create and start metrics streamer
-	m := metrics.New(cfg.Collector, client, orgID, reg, logger)
+	m := metrics.New(client, orgID, siteFilter, cfg.Collector.SiteRefreshInterval, reg, logger)
 	eg.Go(func() error {
 		logger.Info("starting metrics streamer...", "org_id", orgID)
 		return m.Run(ctx)

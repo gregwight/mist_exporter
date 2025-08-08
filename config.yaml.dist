@@ -30,3 +30,8 @@ collector:
 
   # Site refresh interval
   #site_refresh_interval: 1m
+
+  # Site filter
+  #site_filter:
+  #  - include: []
+  #  - exclude: []

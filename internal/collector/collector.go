@@ -5,20 +5,25 @@ import (
 	"sync"
 
 	"github.com/gregwight/mistclient"
+	"github.com/gregwight/mistexporter/internal/filter"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// MistCollector implements the prometheus.Collector interface.
 type MistCollector struct {
 	client *mistclient.APIClient
 	orgID  string
+	filter *filter.Filter
 	wg     *sync.WaitGroup
 	logger *slog.Logger
 }
 
-func New(client *mistclient.APIClient, orgID string, logger *slog.Logger) *MistCollector {
+// New creates a new MistCollector.
+func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, logger *slog.Logger) *MistCollector {
 	return &MistCollector{
 		client: client,
 		orgID:  orgID,
+		filter: siteFilter,
 		wg:     &sync.WaitGroup{},
 		logger: logger.With(slog.String("component", "collector")),
 	}
