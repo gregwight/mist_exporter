@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"fmt"
 	"log/slog"
 	"sync"
 
@@ -19,14 +20,18 @@ type MistCollector struct {
 }
 
 // New creates a new MistCollector.
-func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, logger *slog.Logger) *MistCollector {
+func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, logger *slog.Logger) (*MistCollector, error) {
+	if client == nil {
+		return nil, fmt.Errorf("client cannot be nil")
+	}
+
 	return &MistCollector{
 		client: client,
 		orgID:  orgID,
 		filter: siteFilter,
 		wg:     &sync.WaitGroup{},
 		logger: logger.With(slog.String("component", "collector")),
-	}
+	}, nil
 }
 
 // Describe implements the prometheus.Collector interface

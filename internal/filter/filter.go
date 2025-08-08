@@ -17,7 +17,10 @@ type Filter struct {
 // New creates a new site filter from the configuration
 func New(cfg *config.SiteFilter) (*Filter, error) {
 	if cfg == nil {
-		return &Filter{}, nil
+		return &Filter{
+			include: []string{},
+			exclude: []string{},
+		}, nil
 	}
 
 	// Validate patterns

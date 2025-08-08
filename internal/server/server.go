@@ -16,6 +16,10 @@ import (
 var indexHTML []byte
 
 func New(cfg *config.Config, reg *prometheus.Registry) (*http.Server, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("config cannot be nil")
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
 	mux.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{

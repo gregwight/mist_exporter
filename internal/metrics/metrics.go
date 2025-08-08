@@ -27,7 +27,11 @@ type MistMetrics struct {
 }
 
 // New creates a new MistMetrics
-func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, siteRefreshInterval time.Duration, reg *prometheus.Registry, logger *slog.Logger) *MistMetrics {
+func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, siteRefreshInterval time.Duration, reg *prometheus.Registry, logger *slog.Logger) (*MistMetrics, error) {
+	if client == nil {
+		return nil, fmt.Errorf("client cannot be nil")
+	}
+
 	deviceMetrics = newDeviceMetrics(reg)
 	clientMetrics = newClientMetrics(reg)
 
@@ -40,7 +44,7 @@ func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, 
 		reg:                 reg,
 		logger:              logger.With(slog.String("component", "metrics")),
 		sites:               make(map[string]*StreamCollector),
-	}
+	}, nil
 }
 
 func (c *MistMetrics) Run(ctx context.Context) error {

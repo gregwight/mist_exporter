@@ -83,13 +83,22 @@ func main() {
 	reg.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
 
 	// Add the scrape-time collector
-	reg.MustRegister(collector.New(client, orgID, siteFilter, logger))
+	c, err := collector.New(client, orgID, siteFilter, logger)
+	if err != nil {
+		logger.Error("unable to initialize scrape-time collector", "error", err)
+		os.Exit(1)
+	}
+	reg.MustRegister(c)
 
 	// Use errgroup for managing goroutines
 	eg, ctx := errgroup.WithContext(ctx)
 
 	// Create and start metrics streamer
-	m := metrics.New(client, orgID, siteFilter, cfg.Collector.SiteRefreshInterval, reg, logger)
+	m, err := metrics.New(client, orgID, siteFilter, cfg.Collector.SiteRefreshInterval, reg, logger)
+	if err != nil {
+		logger.Error("unable to initialize metrics streamer", "error", err)
+		os.Exit(1)
+	}
 	eg.Go(func() error {
 		logger.Info("starting metrics streamer...", "org_id", orgID)
 		return m.Run(ctx)

@@ -48,8 +48,10 @@ func TestNew(t *testing.T) {
 		t.Fatalf("filter.New failed: %v", err)
 	}
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c := New(nil, "test-org", f, logger)
-
+	c, err := New(&mistclient.APIClient{}, "test-org", f, logger)
+	if err != nil {
+		t.Fatalf("New() returned an unexpected error: %v", err)
+	}
 	if c == nil {
 		t.Fatal("New() returned a nil collector")
 	}
@@ -126,7 +128,10 @@ func TestCollect(t *testing.T) {
 			}
 
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-			collector := New(client, "test-org-id", siteFilter, logger)
+			collector, err := New(client, "test-org-id", siteFilter, logger)
+			if err != nil {
+				t.Fatalf("New() returned an unexpected error: %v", err)
+			}
 
 			expected, err := os.Open(tc.expectedFile)
 			if err != nil {
