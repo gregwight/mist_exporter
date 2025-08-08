@@ -5,6 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// ClientLabelNames defines the labels attached to wireless client metrics.
 var ClientLabelNames = append(SiteLabelNames,
 	"client_mac",
 	"client_username",
@@ -19,6 +20,7 @@ var ClientLabelNames = append(SiteLabelNames,
 	"ssid",
 )
 
+// ClientLabelValues generates label values for wireless client metrics.
 func ClientLabelValues(s mistclient.Site, c mistclient.Client) []string {
 	return append(SiteLabelValues(s),
 		c.Mac,
@@ -37,6 +39,7 @@ func ClientLabelValues(s mistclient.Site, c mistclient.Client) []string {
 
 var clientMetrics *ClientMetrics
 
+// ClientMetrics holds metrics related to wireless clients.
 type ClientMetrics struct {
 	channel               *prometheus.GaugeVec
 	dualBandCapable       *prometheus.GaugeVec

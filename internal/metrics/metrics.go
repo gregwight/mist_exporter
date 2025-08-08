@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// MistMetrics
+// MistMetrics is coordinates the collection of both streamed and on-demand metrics.
 type MistMetrics struct {
 	client              *mistclient.APIClient
 	orgID               string
@@ -26,7 +26,7 @@ type MistMetrics struct {
 	sites map[string]*StreamCollector
 }
 
-// New creates a new MistMetrics
+// New creates a new MistMetrics.
 func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, siteRefreshInterval time.Duration, reg *prometheus.Registry, logger *slog.Logger) (*MistMetrics, error) {
 	if client == nil {
 		return nil, fmt.Errorf("client cannot be nil")
@@ -127,6 +127,7 @@ func (c *MistMetrics) Ready() <-chan struct{} {
 	return c.ready
 }
 
+// StreamCollector coordinates the collection of metrics from a set of websocket streams.
 type StreamCollector struct {
 	client *mistclient.APIClient
 	site   mistclient.Site

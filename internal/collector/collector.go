@@ -34,12 +34,12 @@ func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, 
 	}, nil
 }
 
-// Describe implements the prometheus.Collector interface
+// Describe implements the prometheus.Collector interface.
 func (c *MistCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-// Collect implements the prometheus.Collector interface
+// Collect implements the prometheus.Collector interface.
 func (c *MistCollector) Collect(ch chan<- prometheus.Metric) {
 	// Get alarms for the organization
 	c.wg.Add(1)

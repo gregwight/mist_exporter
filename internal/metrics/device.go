@@ -5,6 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// DeviceLabelNames defines the labels attached to device metrics.
 var DeviceLabelNames = append(SiteLabelNames,
 	"device_id",
 	"device_name",
@@ -13,10 +14,12 @@ var DeviceLabelNames = append(SiteLabelNames,
 	"device_hw_rev",
 )
 
+// DeviceWithRadioLabelNames defines the labels attached to radio-specific device metrics.
 var DeviceWithRadioLabelNames = append(DeviceLabelNames,
 	"radio",
 )
 
+// DeviceLabelValues generates label values for device metrics.
 func DeviceLabelValues(s mistclient.Site, ds mistclient.DeviceStat) []string {
 	return append(SiteLabelValues(s),
 		ds.ID,
@@ -27,12 +30,14 @@ func DeviceLabelValues(s mistclient.Site, ds mistclient.DeviceStat) []string {
 	)
 }
 
+// DeviceWithRadioLabelValues generates label values for radio-specific device metrics.
 func DeviceWithRadioLabelValues(s mistclient.Site, ds mistclient.DeviceStat, radio string) []string {
 	return append(DeviceLabelValues(s, ds), radio)
 }
 
 var deviceMetrics *DeviceMetrics
 
+// DeviceMetrics holds metrics related to devices.
 type DeviceMetrics struct {
 	accelerationX      *prometheus.GaugeVec
 	accelerationY      *prometheus.GaugeVec

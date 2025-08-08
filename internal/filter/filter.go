@@ -8,13 +8,13 @@ import (
 	"github.com/gregwight/mistexporter/internal/config"
 )
 
-// Filter holds the patterns for including and excluding sites
+// Filter holds the patterns for including and excluding sites.
 type Filter struct {
 	include []string
 	exclude []string
 }
 
-// New creates a new site filter from the configuration
+// New creates a new site filter from the configuration.
 func New(cfg *config.SiteFilter) (*Filter, error) {
 	if cfg == nil {
 		return &Filter{
