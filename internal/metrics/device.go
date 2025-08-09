@@ -61,14 +61,14 @@ type DeviceMetrics struct {
 	uptimeSeconds           *prometheus.GaugeVec
 
 	// Radio metrics
-	radioBandwidthMhz         *prometheus.GaugeVec
-	radioChannel              *prometheus.GaugeVec
-	radioClients              *prometheus.GaugeVec
-	radioTransmitPowerDbm     *prometheus.GaugeVec
-	radioReceiveBytesTotal    *prometheus.GaugeVec
-	radioReceivePacketsTotal  *prometheus.GaugeVec
-	radioTransmitBytesTotal   *prometheus.GaugeVec
-	radioTransmitPacketsTotal *prometheus.GaugeVec
+	radioBandwidthMhz     *prometheus.GaugeVec
+	radioChannel          *prometheus.GaugeVec
+	radioClients          *prometheus.GaugeVec
+	radioTransmitPowerDbm *prometheus.GaugeVec
+	radioReceiveBytes     *prometheus.GaugeVec
+	radioReceivePackets   *prometheus.GaugeVec
+	radioTransmitBytes    *prometheus.GaugeVec
+	radioTransmitPackets  *prometheus.GaugeVec
 }
 
 func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
@@ -203,36 +203,36 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 				Help:      "The radio's transmit power in dBm.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
-		radioReceiveBytesTotal: prometheus.NewGaugeVec(
+		radioReceiveBytes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
 				Name:      "radio_receive_bytes",
-				Help:      "Total bytes received by the radio.",
+				Help:      " bytes received by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
-		radioReceivePacketsTotal: prometheus.NewGaugeVec(
+		radioReceivePackets: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
 				Name:      "radio_receive_packets",
-				Help:      "Total packets received by the radio.",
+				Help:      " packets received by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
-		radioTransmitBytesTotal: prometheus.NewGaugeVec(
+		radioTransmitBytes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
 				Name:      "radio_transmit_bytes",
-				Help:      "Total bytes transmitted by the radio.",
+				Help:      " bytes transmitted by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
-		radioTransmitPacketsTotal: prometheus.NewGaugeVec(
+		radioTransmitPackets: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
 				Name:      "radio_transmit_packets",
-				Help:      "Total packets transmitted by the radio.",
+				Help:      " packets transmitted by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
 	}
@@ -252,11 +252,11 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 		m.radioClients,
 		m.radioTransmitPowerDbm,
 		m.receiveBps,
-		m.radioReceiveBytesTotal,
-		m.radioReceivePacketsTotal,
+		m.radioReceiveBytes,
+		m.radioReceivePackets,
 		m.transmitBps,
-		m.radioTransmitBytesTotal,
-		m.radioTransmitPacketsTotal,
+		m.radioTransmitBytes,
+		m.radioTransmitPackets,
 		m.uptimeSeconds,
 	)
 
@@ -292,9 +292,9 @@ func handleSiteDeviceStat(site mistclient.Site, deviceName string, stat mistclie
 		deviceMetrics.radioChannel.WithLabelValues(labels...).Set(float64(radioStat.Channel))
 		deviceMetrics.radioClients.WithLabelValues(labels...).Set(float64(radioStat.NumClients))
 		deviceMetrics.radioTransmitPowerDbm.WithLabelValues(labels...).Set(float64(radioStat.Power))
-		deviceMetrics.radioReceiveBytesTotal.WithLabelValues(labels...).Set(float64(radioStat.RxBytes))
-		deviceMetrics.radioReceivePacketsTotal.WithLabelValues(labels...).Set(float64(radioStat.RxPkts))
-		deviceMetrics.radioTransmitBytesTotal.WithLabelValues(labels...).Set(float64(radioStat.TxBytes))
-		deviceMetrics.radioTransmitPacketsTotal.WithLabelValues(labels...).Set(float64(radioStat.TxPkts))
+		deviceMetrics.radioReceiveBytes.WithLabelValues(labels...).Set(float64(radioStat.RxBytes))
+		deviceMetrics.radioReceivePackets.WithLabelValues(labels...).Set(float64(radioStat.RxPkts))
+		deviceMetrics.radioTransmitBytes.WithLabelValues(labels...).Set(float64(radioStat.TxBytes))
+		deviceMetrics.radioTransmitPackets.WithLabelValues(labels...).Set(float64(radioStat.TxPkts))
 	}
 }
