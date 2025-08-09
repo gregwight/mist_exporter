@@ -191,7 +191,7 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
-				Name:      "radio_clients_total",
+				Name:      "radio_clients",
 				Help:      "Number of clients connected to this radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
@@ -207,7 +207,7 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
-				Name:      "radio_receive_bytes_total",
+				Name:      "radio_receive_bytes",
 				Help:      "Total bytes received by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
@@ -215,7 +215,7 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
-				Name:      "radio_receive_packets_total",
+				Name:      "radio_receive_packets",
 				Help:      "Total packets received by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
@@ -223,7 +223,7 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
-				Name:      "radio_transmit_bytes_total",
+				Name:      "radio_transmit_bytes",
 				Help:      "Total bytes transmitted by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),
@@ -231,7 +231,7 @@ func newDeviceMetrics(reg *prometheus.Registry) *DeviceMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "device",
-				Name:      "radio_transmit_packets_total",
+				Name:      "radio_transmit_packets",
 				Help:      "Total packets transmitted by the radio.",
 			}, StreamedDeviceWithRadioLabelNames,
 		),

@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	defaultAPIURL                   string        = "https://api.mist.com"
-	defaultExporterAddress          string        = "0.0.0.0"
-	defaultExporterPort             int           = 10038
-	defaultCollectTimeout           time.Duration = 30 * time.Second
-	defaultSiteRefreshInterval      time.Duration = 1 * time.Minute
-	defaultDeviceNameRefresInterval time.Duration = 1 * time.Minute
+	defaultAPIURL                    string        = "https://api.mist.com"
+	defaultExporterAddress           string        = "0.0.0.0"
+	defaultExporterPort              int           = 10038
+	defaultCollectTimeout            time.Duration = 30 * time.Second
+	defaultSiteRefreshInterval       time.Duration = 1 * time.Minute
+	defaultDeviceNameRefreshInterval time.Duration = 1 * time.Minute
 )
 
 // Config holds the top-level exporter configuration.
@@ -26,7 +26,7 @@ type Config struct {
 	Collector  *Collector         `yaml:"collector,omitempty"`
 }
 
-// Exporter holds configurtion relevant to exporter's HTTP server.
+// Exporter holds configuration relevant to exporter's HTTP server.
 type Exporter struct {
 	Address string `yaml:"address,omitempty"`
 	Port    int    `yaml:"port,omitempty"`
@@ -76,7 +76,7 @@ func newDefaultConfig() *Config {
 		},
 		Collector: &Collector{
 			CollectTimeout:            defaultCollectTimeout,
-			DeviceNameRefreshInterval: defaultDeviceNameRefresInterval,
+			DeviceNameRefreshInterval: defaultDeviceNameRefreshInterval,
 			SiteRefreshInterval:       defaultSiteRefreshInterval,
 		},
 	}

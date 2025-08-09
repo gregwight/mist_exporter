@@ -13,7 +13,7 @@ var StreamedClientLabelNames = append(SiteLabelNames,
 	"client_username",
 	"client_hostname",
 	"client_os",
-	"client_manufacture",
+	"client_manufacturer",
 	"client_family",
 	"client_model",
 	"proto",
@@ -111,7 +111,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "locating_aps_total",
+				Name:      "locating_aps",
 				Help:      "The number of APs that can hear the client.",
 			}, StreamedClientLabelNames,
 		),
@@ -143,7 +143,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "receive_bytes_total",
+				Name:      "receive_bytes",
 				Help:      "Total bytes received from the client.",
 			}, StreamedClientLabelNames,
 		),
@@ -151,7 +151,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "receive_packets_total",
+				Name:      "receive_packets",
 				Help:      "Total packets received from the client.",
 			}, StreamedClientLabelNames,
 		),
@@ -167,7 +167,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "receive_retries_total",
+				Name:      "receive_retries",
 				Help:      "Total number of receive retries.",
 			}, StreamedClientLabelNames,
 		),
@@ -191,7 +191,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "transmit_bytes_total",
+				Name:      "transmit_bytes",
 				Help:      "Total bytes transmitted to the client.",
 			}, StreamedClientLabelNames,
 		),
@@ -199,7 +199,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "transmit_packets_total",
+				Name:      "transmit_packets",
 				Help:      "Total packets transmitted to the client.",
 			}, StreamedClientLabelNames,
 		),
@@ -215,7 +215,7 @@ func newClientMetrics(reg *prometheus.Registry) *ClientMetrics {
 			prometheus.GaugeOpts{
 				Namespace: "mist",
 				Subsystem: "client",
-				Name:      "transmit_retries_total",
+				Name:      "transmit_retries",
 				Help:      "Total number of transmit retries.",
 			}, StreamedClientLabelNames,
 		),

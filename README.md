@@ -246,22 +246,22 @@ All device metrics are gauges and share a common set of labels identifying the s
 | `mist_device_load_average_1m` | Current 1m load average of the device. | Gauge |
 | `mist_device_load_average_5m` | Current 5m load average of the device. | Gauge |
 | `mist_device_load_average_15m` | Current 15m load average of the device. | Gauge |
-| `memory_utilization_percent` | Current memory utilization of the device. | Gauge |
+| `mist_device_memory_utilization_percent` | Current memory utilization of the device. | Gauge |
 | `mist_device_receive_bits_per_second` | Bits per second received by the device. | Gauge |
 | `mist_device_transmit_bits_per_second` | Bits per second transmitted by the device. | Gauge |
 | `mist_device_uptime_seconds` | Device uptime in seconds. | Gauge |
 | `mist_device_radio_bandwidth_mhz` | Radio channel bandwidth in MHz. | Gauge |
 | `mist_device_radio_channel` | The current radio channel. | Gauge |
-| `mist_device_radio_clients_total` | Number of clients connected to this radio. | Gauge |
-| `mist_device_radio_receive_bytes_total` | Total bytes received by the radio. | Gauge |
-| `mist_device_radio_receive_packets_total` | Total packets received by the radio. | Gauge |
-| `mist_device_radio_transmit_bytes_total` | Total bytes transmitted by the radio. | Gauge |
-| `mist_device_radio_transmit_packets_total` | Total packets transmitted by the radio. | Gauge |
+| `mist_device_radio_clients` | Number of clients connected to this radio. | Gauge |
+| `mist_device_radio_receive_bytes` | Total bytes received by the radio. | Gauge |
+| `mist_device_radio_receive_packets` | Total packets received by the radio. | Gauge |
+| `mist_device_radio_transmit_bytes` | Total bytes transmitted by the radio. | Gauge |
+| `mist_device_radio_transmit_packets` | Total packets transmitted by the radio. | Gauge |
 | `mist_device_radio_transmit_power_dbm` | The radio's transmit power in dBm. | Gauge |
 
 #### Client Metrics
 
-All client metrics are gauges and share a common set of labels identifying the site, client, and connection details (`site_name`, `device_name`, `device_mac`, `client_mac`, `client_username`, `client_hostname`, `client_os`, `client_manufacture`, `client_family`, `client_model`, `device_id`, `proto`, `radio`, `ssid`).
+All client metrics are gauges and share a common set of labels identifying the site, client, and connection details (`site_name`, `device_name`, `device_mac`, `client_mac`, `client_username`, `client_hostname`, `client_os`, `client_manufacturer`, `client_family`, `client_model`, `device_id`, `proto`, `radio`, `ssid`).
 
 | Metric | Description | Type |
 |---|---|---|
@@ -270,20 +270,20 @@ All client metrics are gauges and share a common set of labels identifying the s
 | `mist_client_idle_seconds` | Time in seconds since the client was last active. | Gauge |
 | `mist_client_is_guest_status` | Whether the client is a guest user (1 for true, 0 for false). | Gauge |
 | `mist_client_last_seen_timestamp_seconds` | The last time the client was seen, as a Unix timestamp. | Gauge |
-| `mist_client_locating_aps_total` | The number of APs that can hear the client. | Gauge |
+| `mist_client_locating_aps` | The number of APs that can hear the client. | Gauge |
 | `mist_client_power_saving_mode_active` | Whether the client is in power-saving mode (1 for true, 0 for false). | Gauge |
 | `mist_client_receive_bits_per_second` | Bits per second received from the client. | Gauge |
-| `mist_client_receive_bytes_total` | Total bytes received from the client. | Gauge |
-| `mist_client_receive_packets_total` | Total packets received from the client. | Gauge |
+| `mist_client_receive_bytes` | Total bytes received from the client. | Gauge |
+| `mist_client_receive_packets` | Total packets received from the client. | Gauge |
 | `mist_client_receive_rate_mbps` | The receive data rate in Mbps. | Gauge |
-| `mist_client_receive_retries_total` | Total number of receive retries. | Gauge |
+| `mist_client_receive_retries` | Total number of receive retries. | Gauge |
 | `mist_client_rssi_dbm` | The client's Received Signal Strength Indicator in dBm. | Gauge |
 | `mist_client_snr_db` | The client's Signal-to-Noise Ratio in dB. | Gauge |
 | `mist_client_transmit_bits_per_second` | Bits per second transmitted to the client. | Gauge |
-| `mist_client_transmit_bytes_total` | Total bytes transmitted to the client. | Gauge |
-| `mist_client_transmit_packets_total` | Total packets transmitted to the client. | Gauge |
+| `mist_client_transmit_bytes` | Total bytes transmitted to the client. | Gauge |
+| `mist_client_transmit_packets` | Total packets transmitted to the client. | Gauge |
 | `mist_client_transmit_rate_mbps` | The transmit data rate in Mbps. | Gauge |
-| `mist_client_transmit_retries_total` | Total number of transmit retries. | Gauge |
+| `mist_client_transmit_retries` | Total number of transmit retries. | Gauge |
 | `mist_client_uptime_seconds` | The client's session uptime in seconds. | Gauge |
 
 ## Contributing
