@@ -271,6 +271,15 @@ func handleSiteDeviceStat(site mistclient.Site, deviceName string, stat mistclie
 	deviceMetrics.cpuUtilizationInterrupt.WithLabelValues(labels...).Set(float64(stat.CpuStat.Interrupt))
 	deviceMetrics.cpuUtilizationUser.WithLabelValues(labels...).Set(float64(stat.CpuStat.User))
 	deviceMetrics.lastSeenTimestamp.WithLabelValues(labels...).Set(float64(stat.LastSeen.Unix()))
+
+	// Sense check the load average slice just in case...
+	if len(stat.CpuStat.LoadAvg) == 3 {
+		deviceMetrics.loadAverage1m.WithLabelValues(labels...).Set(float64(stat.CpuStat.LoadAvg[0]))
+		deviceMetrics.loadAverage5m.WithLabelValues(labels...).Set(float64(stat.CpuStat.LoadAvg[1]))
+		deviceMetrics.loadAverage15m.WithLabelValues(labels...).Set(float64(stat.CpuStat.LoadAvg[2]))
+	}
+
+	deviceMetrics.memoryUtilization.WithLabelValues(labels...).Set(float64(stat.MemStat.Usage))
 	deviceMetrics.receiveBps.WithLabelValues(labels...).Set(float64(stat.RxBps))
 	deviceMetrics.transmitBps.WithLabelValues(labels...).Set(float64(stat.TxBps))
 	deviceMetrics.uptimeSeconds.WithLabelValues(labels...).Set(stat.Uptime.Seconds())
