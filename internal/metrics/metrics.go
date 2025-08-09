@@ -53,7 +53,7 @@ func New(client *mistclient.APIClient, orgID string, siteFilter *filter.Filter, 
 
 func (c *MistMetrics) Run(ctx context.Context) error {
 	wg := &sync.WaitGroup{}
-	if err := c.updateDeviceNameMap(ctx, wg); err != nil {
+	if err := c.updateDeviceNameMap(); err != nil {
 		return fmt.Errorf("unable to initialize device name map: %w", err)
 	}
 
@@ -73,7 +73,7 @@ func (c *MistMetrics) Run(ctx context.Context) error {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				if err := c.updateDeviceNameMap(ctx, wg); err != nil {
+				if err := c.updateDeviceNameMap(); err != nil {
 					c.logger.Error("unable to refresh org device names", "error", err)
 				}
 			}
@@ -104,7 +104,7 @@ func (c *MistMetrics) Run(ctx context.Context) error {
 	return nil
 }
 
-func (c *MistMetrics) updateDeviceNameMap(ctx context.Context, wg *sync.WaitGroup) error {
+func (c *MistMetrics) updateDeviceNameMap() error {
 	c.logger.Debug("running org device name map updater...")
 	defer c.logger.Debug("org device name map updater finished")
 
